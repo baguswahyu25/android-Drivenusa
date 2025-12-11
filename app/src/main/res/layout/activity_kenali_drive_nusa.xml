@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- HEADER -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="#000F3F">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#FFFFFF" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tentang Drive Nusa"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#F89331" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- TITLE -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kenali Drive Nusa"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#000F3F"
+                android:letterSpacing="0.01"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp"
+                android:lineSpacingExtra="5dp"
+                android:textColor="#3A3A3A"
+                android:text="Drive Nusa merupakan platform layanan belajar mengemudi berbasis digital ..."/>
+
+            <!-- SECTION: SEJARAH -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sejarah dan Latar Belakang"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000F3F"
+                android:layout_marginTop="28dp"/>
+
+            <View
+                android:layout_width="80dp"
+                android:layout_height="4dp"
+                android:background="#F89331"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:lineSpacingExtra="5dp"
+                android:textColor="#3A3A3A"
+                android:layout_marginTop="10dp"
+                android:text="Drive Nusa berawal dari kebutuhan masyarakat terhadap layanan kursus ..."/>
+
+            <!-- VISI -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Visi"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000F3F"
+                android:layout_marginTop="28dp"/>
+
+            <View
+                android:layout_width="60dp"
+                android:layout_height="4dp"
+                android:background="#F89331"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp"
+                android:lineSpacingExtra="5dp"
+                android:textColor="#3A3A3A"
+                android:text="Menjadikan Drive Nusa platform kursus mengemudi digital terbesar ..."/>
+
+            <!-- MISI -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Misi"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000F3F"
+                android:layout_marginTop="26dp"/>
+
+            <View
+                android:layout_width="60dp"
+                android:layout_height="4dp"
+                android:background="#F89331"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp"
+                android:lineSpacingExtra="6dp"
+                android:textColor="#3A3A3A"
+                android:text="• Menyediakan pendaftaran sosial tanpa ribet.\n• Sistem penjadwalan otomatis ..."/>
+
+            <!-- LAYANAN -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Layanan Utama Drive Nusa"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000F3F"
+                android:layout_marginTop="26dp"/>
+
+            <View
+                android:layout_width="120dp"
+                android:layout_height="4dp"
+                android:background="#F89331"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:lineSpacingExtra="6dp"
+                android:textColor="#444444"
+                android:layout_marginTop="8dp"
+                android:text="1. Pendaftaran Online\n• Registrasi tanpa datang ke lokasi.\n• Paket manual &amp; automatic.\n\n2. Penjadwalan Latihan Sinkron\n• Pilih jam latihan kapan saja.\n• Reminder otomatis.\n\n3. Monitoring Progress Real-Time\n• Evaluasi per sesi jelas.\n• Grafik progres tersedia.\n\n4. Premium Features\n• Pilih jenis mobil.\n• Sertifikat kelulusan." />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

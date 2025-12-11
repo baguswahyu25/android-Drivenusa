@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- TITLE -->
+        <TextView
+            android:id="@+id/txtJudul"
+            android:text="Pengajuan Jadwal"
+            android:textStyle="bold"
+            android:textSize="22sp"
+            android:layout_marginBottom="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- PERTEMUAN -->
+        <TextView
+            android:text="Pertemuan"
+            android:textSize="14sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/txtPertemuan"
+            android:text="Pertemuan 1"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:layout_marginBottom="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- PILIH TANGGAL -->
+        <TextView
+            android:text="Pilih Tanggal"
+            android:textSize="14sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/btnTanggal"
+            android:padding="14dp"
+            android:text="Pilih tanggal"
+            android:textSize="16sp"
+            android:background="@drawable/bg_field"
+            android:layout_marginBottom="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!-- PILIH JAM -->
+        <TextView
+            android:text="Pilih Jam"
+            android:textSize="14sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:id="@+id/layoutJam"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Jam akan ditambahkan dinamis lewat Kotlin -->
+
+        </LinearLayout>
+
+        <!-- TOMBOL KIRIM -->
+        <Button
+            android:id="@+id/btnAjukan"
+            android:text="Ajukan Jadwal"
+            android:layout_marginTop="30dp"
+            android:backgroundTint="#2979FF"
+            android:textColor="@android:color/white"
+            android:padding="14dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</ScrollView>

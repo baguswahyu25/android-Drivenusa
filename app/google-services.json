@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "600711980959",
+    "project_id": "drivenusa-99a9d",
+    "storage_bucket": "drivenusa-99a9d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:600711980959:android:0e66709b8bcaf6376dffaa",
+        "android_client_info": {
+          "package_name": "projectichif.DriveNusa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMRV-tssZWOZsuwZwddjRBA8-j3qcdMPo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

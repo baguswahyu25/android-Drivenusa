@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F9F9">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- ================= HEADER BAR ================= -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:padding="12dp">
+
+            <ImageView
+                android:id="@+id/btn_back_kredit"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_back"
+                android:layout_centerVertical="true"
+                android:contentDescription="back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kredit Pembayaran"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#000"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+
+        <!-- ================= ISI KONTEN ================= -->
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Harga paket -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Harga Paket:"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/txtHargaKredit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rp 0"
+                android:textSize="16sp"
+                android:paddingBottom="15dp"/>
+
+            <!-- DP -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Uang Muka (DP):"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/txtDP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rp 500.000"
+                android:textSize="16sp"
+                android:paddingBottom="15dp"/>
+
+            <!-- Tenor -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pilih Tenor:"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <RadioGroup
+                android:id="@+id/groupTenor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="20dp">
+
+                <RadioButton
+                    android:id="@+id/optionMinggu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Per Minggu (4x)"
+                    android:textSize="16sp"/>
+
+                <RadioButton
+                    android:id="@+id/optionBulan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Per Bulan (6x)"
+                    android:textSize="16sp"/>
+
+                <RadioButton
+                    android:id="@+id/optionTahun"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Per Tahun (12x)"
+                    android:textSize="16sp"/>
+            </RadioGroup>
+
+            <!-- Total cicilan -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Cicilan:"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/txtTotalCicilan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rp 0"
+                android:textSize="16sp"
+                android:paddingBottom="15dp"/>
+
+            <!-- Cicilan per periode -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nominal Periode:"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/txtNominalPeriode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rp 0"
+                android:textSize="16sp"
+                android:paddingBottom="25dp"/>
+
+            <Button
+                android:id="@+id/btnAjukanKredit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ajukan Kredit"
+                android:backgroundTint="#000f3f"
+                android:textColor="#FFF"
+                android:padding="12dp"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    tools:context=".VerificationActivity">
+
+    <!-- BAGIAN ATAS PUTIH (LOGO) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/drivenusa"
+            android:contentDescription="Logo Drive Nusa"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
+    <!-- BAGIAN BAWAH (GRADIENT FORM) -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@drawable/bg_form_gradient">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center_horizontal">
+
+            <!-- JUDUL -->
+            <TextView
+                android:id="@+id/tvVerificationTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Verifikasi Email"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp" />
+
+            <!-- EMAIL -->
+            <TextView
+                android:id="@+id/txtEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="email@gmail.com"
+                android:textSize="15sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="6dp" />
+
+            <!-- PESAN -->
+            <TextView
+                android:id="@+id/tvVerificationMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Kami telah mengirim email verifikasi ke alamat tersebut."
+                android:textSize="15sp"
+                android:textColor="@android:color/black"
+                android:gravity="center"
+                android:layout_marginBottom="20dp" />
+
+            <!-- TOMBOL KIRIM ULANG -->
+            <Button
+                android:id="@+id/btnAlreadyVerified"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Kirim Ulang Verifikasi"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:foreground="?attr/selectableItemBackground"
+                android:backgroundTint="#f89331"
+                android:layout_marginBottom="12dp" />
+
+            <!-- TOMBOL LANJUT LOGIN -->
+
+            <!-- PROGRESS BAR -->
+            <Button
+                android:id="@+id/btnGoToLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="28dp"
+                android:backgroundTint="#f89331"
+                android:text="Lanjut Login"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:foreground="?attr/selectableItemBackground"
+                android:textStyle="bold" />
+
+            <ProgressBar
+                android:id="@+id/progressBarVerify"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:visibility="gone"
+                android:layout_marginTop="6dp"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
