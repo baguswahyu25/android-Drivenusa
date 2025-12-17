@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "https://desainkito.web.id/api/"
+    private const val BASE_URL = "http://192.168.1.46:8000/api/"
 
     private val client by lazy {
         val logging = HttpLoggingInterceptor().apply {

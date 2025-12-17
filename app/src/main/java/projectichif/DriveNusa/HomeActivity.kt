@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 import projectichif.DriveNusa.api.AuthRepository
 import projectichif.DriveNusa.databinding.ActivityHomeBinding
@@ -25,6 +26,7 @@ class HomeActivity : AppCompatActivity() {
 
         // 🔥 CEK TOKEN PERTAMA KALI ACTIVITY DIBUKA
         verifyToken()
+
 
         // BNB default fragment
         if (savedInstanceState == null) {
@@ -51,6 +53,7 @@ class HomeActivity : AppCompatActivity() {
         verifyToken()
     }
 
+
     // ==========================================================
     // FUNGSI CEK TOKEN — DIPAKAI DI onCreate & onResume
     // ==========================================================
@@ -65,7 +68,6 @@ class HomeActivity : AppCompatActivity() {
             }
         }
     }
-
     private fun logout() {
         UserLocal.clearToken(this)
         startActivity(Intent(this, LoginActivity::class.java))

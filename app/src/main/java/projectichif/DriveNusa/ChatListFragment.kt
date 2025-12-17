@@ -26,11 +26,9 @@ class ChatListFragment : Fragment(), ChatItemClickListener {
         val recyclerView = view.findViewById<RecyclerView>(R.id.rv_chat_list)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        // Data Dummy (sesuai dengan 2 item di gambar)
+        // Data Dummy (hanya official Drivenusa)
         val chatList = listOf(
-            // Pastikan R.drawable.ic_nusa dan R.drawable.ic_trainer ada
-            ChatItem(R.drawable.ic_nusa, "official Drivenusa", "Kursus ini terdiri dari 14 pertemuan", "10:38", true),
-            ChatItem(R.drawable.ic_trainer, "juru kemudi", "sudah siap untuk kursus mengemudi hari ini", "13:00", false)
+            ChatItem(R.drawable.ic_nusa, "official Drivenusa", "Kursus ini terdiri dari 14 pertemuan", "10:38", true)
         )
 
         // Set adapter, kirim 'this' (Fragment) sebagai listener
@@ -41,6 +39,7 @@ class ChatListFragment : Fragment(), ChatItemClickListener {
             parentFragmentManager.popBackStack()
         }
     }
+
 
     // === IMPLEMENTASI DARI CHAT ITEM CLICK LISTENER ===
     override fun onChatClicked(chatItem: ChatItem) {

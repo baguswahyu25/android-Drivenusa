@@ -7,40 +7,45 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-// Definisikan Interface Click Listener
 interface NotificationClickListener {
-    fun onNotificationClicked(position: Int)
+    fun onNotificationClicked(item: NotificationItem)
 }
 
-// Modifikasi konstruktor adapter untuk menerima listener
 class NotificationAdapter(
-    private val notifications: List<NotificationItem>,
-    private val clickListener: NotificationClickListener // <--- TAMBAHAN
-) : RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
+    private val notificationList: MutableList<NotificationItem>,
+    private val listener: NotificationClickListener
+) : RecyclerView.Adapter<NotificationAdapter.ViewHolder>() {
 
-    class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val icon: ImageView = itemView.findViewById(R.id.iv_icon)
-        val title: TextView = itemView.findViewById(R.id.tv_title)
-        val subtitle: TextView = itemView.findViewById(R.id.tv_subtitle)
-    }
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val ivIcon: ImageView = itemView.findViewById(R.id.iv_icon)
+        val tvTitle: TextView = itemView.findViewById(R.id.tv_title)
+        val tvSubtitle: TextView = itemView.findViewById(R.id.tv_subtitle)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_notification, parent, false)
-        return NotificationViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
-        val item = notifications[position]
-        holder.icon.setImageResource(item.iconResId)
-        holder.title.text = item.title
-        holder.subtitle.text = item.subtitle
-
-        // Menambahkan listener klik ke item view
-        holder.itemView.setOnClickListener {
-            clickListener.onNotificationClicked(position)
+        init {
+            itemView.setOnClickListener {
+                listener.onNotificationClicked(notificationList[adapterPosition])
+            }
         }
     }
 
-    override fun getItemCount() = notifications.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_notification, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun getItemCount(): Int = notificationList.size
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = notificationList[position]
+        holder.ivIcon.setImageResource(item.iconResId)
+        holder.tvTitle.text = item.title
+        holder.tvSubtitle.text = item.subtitle
+    }
+
+    fun setNotifications(list: List<NotificationItem>) {
+        notificationList.clear()
+        notificationList.addAll(list)
+        notifyDataSetChanged()
+    }
 }

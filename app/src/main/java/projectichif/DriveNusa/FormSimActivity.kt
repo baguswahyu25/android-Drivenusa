@@ -1,13 +1,23 @@
+// Updated FormSimActivity with full Android-version compatibility
+// (Android 5 - Android 14+) and modern file picker APIs
+
 package projectichif.DriveNusa
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,11 +31,36 @@ class FormSimActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityFormSimBinding
     private var paketNama: String? = null
+
     private var pasPhotoUri: Uri? = null
     private var ktpUri: Uri? = null
+    private var tanggalLahirServer: String? = null
 
-    private val PICK_PAS = 201
-    private val PICK_KTP = 202
+
+    // UNIVERSAL FILE PICKER (Works Android 5 – 14+)
+    private val pickPasFoto =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                pasPhotoUri = uri
+                binding.txtPasPhoto.text = getFileName(uri)
+                binding.txtPasPhoto.setTextColor(
+                    ContextCompat.getColor(this, android.R.color.black)
+                )
+            }
+        }
+
+
+    private val pickKtp =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                ktpUri = uri
+                binding.txtKtpName.text = getFileName(uri)
+                binding.txtKtpName.setTextColor(
+                    ContextCompat.getColor(this, android.R.color.black)
+                )
+            }
+        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,60 +72,66 @@ class FormSimActivity : AppCompatActivity() {
         paketNama = intent.getStringExtra(SyaratActivity.EXTRA_PAKET_NAMA)
         binding.tvPaket.text = "Paket yang dipilih: $paketNama"
 
-        binding.cbKonfirmasi.setOnCheckedChangeListener { _, isChecked ->
-            binding.btnSimpan.isEnabled = isChecked
+        requestImagePermission()
+
+        binding.cbKonfirmasi.setOnCheckedChangeListener { _, checked ->
+            binding.btnSimpan.isEnabled = checked
         }
 
         binding.etTanggalLahir.setOnClickListener { showDatePicker() }
+        val genderItems = listOf("Laki-laki", "Perempuan")
+
+        val genderAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_1,
+            genderItems
+        )
+
+        binding.etJenisKelamin.setAdapter(genderAdapter)
 
         binding.rgMetodePembayaran.setOnCheckedChangeListener { _, checkedId ->
             binding.llOpsiKredit.visibility = if (checkedId == R.id.rb_kredit) View.VISIBLE else View.GONE
         }
 
-        binding.btnUploadPasPhoto.setOnClickListener { pickFile(PICK_PAS) }
-        binding.btnUploadKtp.setOnClickListener { pickFile(PICK_KTP) }
+        // File Picker
+        binding.btnUploadPasPhoto.setOnClickListener { pickPasFoto.launch("image/*") }
+        binding.btnUploadKtp.setOnClickListener { pickKtp.launch("image/*") }
 
         binding.btnSimpan.setOnClickListener { submitFormSim() }
-
         binding.btnBack.setOnClickListener { finish() }
     }
 
-    private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        val datePicker = DatePickerDialog(
-            this,
-            { _, year, month, day ->
-                val formatted = "%02d/%02d/%04d".format(day, month + 1, year)
-                binding.etTanggalLahir.setText(formatted)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        datePicker.show()
-    }
-
-    private fun pickFile(code: Int) {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "image/*"
-        startActivityForResult(Intent.createChooser(intent, "Pilih file"), code)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK && data != null) {
-            val uri = data.data ?: return
-            when (requestCode) {
-                PICK_PAS -> {
-                    pasPhotoUri = uri
-                    binding.txtPasPhoto.text = getFileName(uri)
-                }
-                PICK_KTP -> {
-                    ktpUri = uri
-                    binding.txtKtpName.text = getFileName(uri)
-                }
+    private fun requestImagePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val perm = Manifest.permission.READ_MEDIA_IMAGES
+            if (ContextCompat.checkSelfPermission(this, perm) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(perm), 1001)
+            }
+        } else {
+            val perm = Manifest.permission.READ_EXTERNAL_STORAGE
+            if (ContextCompat.checkSelfPermission(this, perm) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(perm), 1002)
             }
         }
+    }
+
+    private fun showDatePicker() {
+        val cal = Calendar.getInstance()
+        val dp = DatePickerDialog(
+            this,
+            { _, year, month, day ->
+                val displayDate = "%02d/%02d/%04d".format(day, month + 1, year)
+                binding.etTanggalLahir.setText(displayDate)
+
+                // FORMAT UNTUK SERVER (🔥 PENTING)
+                tanggalLahirServer = "%04d-%02d-%02d".format(year, month + 1, day)
+
+            },
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH),
+            cal.get(Calendar.DAY_OF_MONTH)
+        )
+        dp.show()
     }
 
     private fun getFileName(uri: Uri): String {
@@ -109,14 +150,18 @@ class FormSimActivity : AppCompatActivity() {
     }
 
     private fun submitFormSim() {
-        // Disable tombol dulu biar aman
+
         binding.btnSimpan.isEnabled = false
         binding.btnSimpan.text = "Mengirim..."
 
-        // Ambil semua field saat tombol diklik (pasti terbaca)
         val namaLengkap = binding.etNamaLengkap.text.toString().trim()
         val tempatLahir = binding.etTempatLahir.text.toString().trim()
-        val tanggalLahir = binding.etTanggalLahir.text.toString().trim()
+        val tanggalLahir = tanggalLahirServer ?: ""
+        if (tanggalLahirServer.isNullOrEmpty()) {
+            Toast.makeText(this, "Pilih tanggal lahir!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val alamat = binding.etAlamat.text.toString().trim()
         val jenisKelamin = binding.etJenisKelamin.text.toString().trim()
         val pekerjaan = binding.etPekerjaan.text.toString().trim()
@@ -144,18 +189,15 @@ class FormSimActivity : AppCompatActivity() {
             else -> null
         }
 
-        // VALIDASI
-        if (namaLengkap.isEmpty() || tempatLahir.isEmpty() || tanggalLahir.isEmpty() ||
-            alamat.isEmpty() || jenisKelamin.isEmpty() || pekerjaan.isEmpty() ||
-            mobil.isEmpty() || metode.isEmpty() || pasPhotoUri == null || ktpUri == null ||
-            (metode == "Kredit" && opsiKredit == null)
-        ) {
-            Toast.makeText(this, "Lengkapi semua data dan file wajib diunggah!", Toast.LENGTH_SHORT).show()
+        if (namaLengkap.isEmpty() || tempatLahir.isEmpty() || tanggalLahir.isEmpty() || alamat.isEmpty() || jenisKelamin.isEmpty() || pekerjaan.isEmpty() || mobil.isEmpty() || metode.isEmpty() || pasPhotoUri == null || ktpUri == null || (metode == "Kredit" && opsiKredit == null)) {
+
+            Toast.makeText(this, "Lengkapi semua data & upload file!", Toast.LENGTH_SHORT).show()
             binding.btnSimpan.isEnabled = true
             binding.btnSimpan.text = "Simpan"
             return
         }
 
+        // Harga Paket
         val hargaMap = mapOf(
             "Paket Manual" to 1150000,
             "Paket Automatic" to 1250000,
@@ -165,11 +207,11 @@ class FormSimActivity : AppCompatActivity() {
 
         val harga = hargaMap[paketNama] ?: 0
 
-        // Coroutine untuk submit
         CoroutineScope(Dispatchers.IO).launch {
+
             val res = AuthRepository.submitFormSim(
                 context = this@FormSimActivity,
-                paket = paketNama ?: "Tidak diketahui",
+                paket = paketNama ?: "",
                 namaLengkap = namaLengkap,
                 tempatLahir = tempatLahir,
                 tanggalLahir = tanggalLahir,
@@ -189,7 +231,8 @@ class FormSimActivity : AppCompatActivity() {
                 binding.btnSimpan.text = "Simpan"
 
                 if (res?.success == true) {
-                    Toast.makeText(this@FormSimActivity, "Berhasil menyimpan data!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@FormSimActivity, "Berhasil!", Toast.LENGTH_LONG).show()
+
                     val intent = Intent(this@FormSimActivity, PembayaranActivity::class.java).apply {
                         putExtra("extra_paket", paketNama)
                         putExtra("extra_harga", harga)
@@ -199,7 +242,9 @@ class FormSimActivity : AppCompatActivity() {
                         putExtra("extra_penerima_nama", "Drive Nusa")
                         putExtra("extra_penerima_nomor", "1234567890")
                     }
+
                     startActivity(intent)
+
                 } else {
                     Toast.makeText(this@FormSimActivity, "Error: ${res?.message ?: "Server Error"}", Toast.LENGTH_LONG).show()
                 }

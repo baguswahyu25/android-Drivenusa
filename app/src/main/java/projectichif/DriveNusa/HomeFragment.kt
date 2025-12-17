@@ -73,6 +73,7 @@ class HomeFragment : Fragment() {
         binding.cardPertemuan.setOnClickListener {
             startActivity(Intent(requireContext(), PengajuanJadwalActivity::class.java))
         }
+
     }
 
     override fun onResume() {

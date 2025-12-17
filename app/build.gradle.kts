@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
+    id ("kotlin-kapt")
 }
 
 
@@ -78,14 +80,20 @@ android {
     val navVersion = "2.7.3"
 
     dependencies {
+        // Glide
+        implementation("com.github.bumptech.glide:glide:4.16.0")
+        kapt("com.github.bumptech.glide:compiler:4.16.0")
         implementation("androidx.navigation:navigation-fragment-ktx:${navVersion}")
         implementation("androidx.navigation:navigation-ui-ktx:${navVersion}")
         implementation ("com.github.bumptech.glide:glide:4.16.0")
-
-        annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
+        // ===== FIREBASE (FCM) =====
+        implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+        implementation("com.google.firebase:firebase-messaging")
         implementation("androidx.datastore:datastore-preferences:1.1.1")
+        implementation("com.android.volley:volley:1.2.1")
 
-
+//shimmer
+        implementation("com.facebook.shimmer:shimmer:0.5.0")
 // ✅ AndroidX Core & UI
 
         implementation("androidx.core:core-ktx:1.12.0")
@@ -136,6 +144,7 @@ android {
 
 // ✅ Testing
 
+        implementation("com.google.firebase:firebase-messaging:23.4.1")
         testImplementation("junit:junit:4.13.2")
 
         androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -155,7 +164,7 @@ android {
         implementation("de.hdodenhof:circleimageview:3.1.0")
 
         implementation("com.airbnb.android:lottie:6.3.0")
-
+        implementation("com.google.android.material:material:1.12.0")
 
     }
 

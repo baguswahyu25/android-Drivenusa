@@ -1,0 +1,39 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#F89331"
+                android:endColor="#FFB347"
+                android:angle="0" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <!-- Text PROMO -->
+    <item
+        android:top="40dp"
+        android:left="24dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PROMO DISKON"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+    </item>
+
+    <!-- Subtitle -->
+    <item
+        android:top="80dp"
+        android:left="24dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hemat hingga 50%"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"/>
+    </item>
+
+</layer-list>

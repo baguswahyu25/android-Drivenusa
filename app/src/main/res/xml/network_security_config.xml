@@ -6,11 +6,11 @@
         <domain includeSubdomains="true">127.0.0.1</domain>
         <domain includeSubdomains="true">192.168.1.186</domain>
         <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">192.168.1.103</domain>
-        <domain includeSubdomains="true">172.16.63.74</domain>
+        <domain includeSubdomains="true">192.168.1.7</domain>
+        <domain includeSubdomains="true">10.29.253.172</domain>
         <domain includeSubdomains="true">192.168.1.13</domain>
         <domain includeSubdomains="true">172.16.100.221</domain>
-        <domain includeSubdomains="true">192.168.1.44</domain>
+        <domain includeSubdomains="true">192.168.1.46</domain>
         <domain includeSubdomains="true">10.37.35.172</domain>
 
     </domain-config>

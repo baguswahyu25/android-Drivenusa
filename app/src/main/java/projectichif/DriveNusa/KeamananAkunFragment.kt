@@ -1,5 +1,6 @@
 package projectichif.DriveNusa
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,56 +8,81 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import projectichif.DriveNusa.databinding.FragmentKeamananAkunBinding  // ganti package sesuai project kamu
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import projectichif.DriveNusa.api.AuthRepository
+import projectichif.DriveNusa.databinding.FragmentKeamananAkunBinding
+import projectichif.DriveNusa.UserLocal
 
 class KeamananAkunFragment : Fragment() {
 
     private var _binding: FragmentKeamananAkunBinding? = null
-    private val binding get() = _binding!!  // aman karena hanya dipakai antara onCreateView – onDestroyView
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentKeamananAkunBinding.inflate(inflater, container, false)
-        val view = binding.root
 
-        // Tombol back
         binding.btnBack.setOnClickListener {
-            try { findNavController().popBackStack() } catch (e: Exception) { activity?.onBackPressed() }
+            requireActivity().supportFragmentManager.popBackStack()
         }
 
-        // Tombol konfirmasi
         binding.btnKonfirmasi.setOnClickListener {
             onKonfirmasiClicked()
         }
 
-        return view
+        return binding.root
     }
 
     private fun onKonfirmasiClicked() {
-        val oldPass = binding.etOldPassword.text?.toString()?.trim().orEmpty()
-        val newPass = binding.etNewPassword.text?.toString()?.trim().orEmpty()
-        val confPass = binding.etConfirmPassword.text?.toString()?.trim().orEmpty()
+        val oldPass = binding.etOldPassword.text.toString().trim()
+        val newPass = binding.etNewPassword.text.toString().trim()
+        val confPass = binding.etConfirmPassword.text.toString().trim()
 
         when {
-            oldPass.isEmpty() -> {
-                Toast.makeText(requireContext(), "Masukkan password lama", Toast.LENGTH_SHORT).show()
-            }
-            newPass.length < 6 -> {
-                Toast.makeText(requireContext(), "Password baru minimal 6 karakter", Toast.LENGTH_SHORT).show()
-            }
-            newPass != confPass -> {
-                Toast.makeText(requireContext(), "Konfirmasi password tidak cocok", Toast.LENGTH_SHORT).show()
-            }
-            else -> {
-                // TODO: hubungkan ke backend / Supabase / API update password
-                Toast.makeText(requireContext(), "Password berhasil diubah (simulasi)", Toast.LENGTH_SHORT).show()
+            oldPass.isEmpty() -> toast("Masukkan password lama")
+            newPass.length < 6 -> toast("Password baru minimal 6 karakter")
+            newPass != confPass -> toast("Konfirmasi password tidak cocok")
+            else -> submitChangePassword(oldPass, newPass)
+        }
+    }
 
-                // kembali ke profile
-                try { findNavController().popBackStack() } catch (e: Exception) { activity?.onBackPressed() }
+    private fun submitChangePassword(oldPass: String, newPass: String) {
+        binding.btnKonfirmasi.isEnabled = false
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = AuthRepository.changePassword(
+                requireContext(),
+                oldPass,
+                newPass
+            )
+
+            binding.btnKonfirmasi.isEnabled = true
+
+            if (result?.success == true) {
+                toast("Password berhasil diubah, silakan login ulang")
+
+                // 🔐 WAJIB: hapus semua data user & token
+                UserLocal.clearAll(requireContext())
+
+                // 🔥 KEMBALI KE LOGIN
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+
+                requireActivity().finish()
+            } else {
+                toast(result?.message ?: "Gagal mengubah password")
             }
         }
+    }
+
+
+    private fun toast(msg: String) {
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

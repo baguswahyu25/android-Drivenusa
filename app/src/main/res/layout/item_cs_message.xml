@@ -1,46 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:orientation="vertical">
 
-    <!-- Nama pengirim -->
-    <TextView
-        android:id="@+id/tvSender"
+    <LinearLayout
+        android:id="@+id/bubbleContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CS"
-        android:textStyle="bold"
-        android:textColor="#1E88E5"
-        android:textSize="13sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:padding="10dp"
+        android:background="@drawable/bg_chat_user"
+    android:orientation="vertical"
+    android:layout_gravity="end">
 
-    <!-- Isi pesan -->
     <TextView
         android:id="@+id/tvMessage"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Isi pesan…"
-        android:textColor="#000000"
-        android:textSize="15sp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvSender"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:textColor="#000"
+        android:textSize="14sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
-    <!-- Waktu -->
     <TextView
         android:id="@+id/tvTime"
+        android:textSize="10sp"
+        android:textColor="#888"
+        android:layout_gravity="end"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="12:00"
-        android:textSize="11sp"
-        android:textColor="#777777"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvMessage"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:layout_height="wrap_content"/>
+</LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>

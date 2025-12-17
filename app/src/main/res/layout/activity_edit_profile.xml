@@ -39,7 +39,7 @@
                 android:id="@+id/imgProfile"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_user"
+                android:src="@drawable/ic_person"
                 android:contentDescription="User Image" />
 
             <ImageView
@@ -77,9 +77,22 @@
             android:text="simpan"
             android:textAllCaps="false"
             android:layout_marginTop="40dp"
-            android:background="@drawable/btn_blue_rounded"
+            android:backgroundTint="@color/orange"
             android:textColor="#FFFFFF" />
+        <FrameLayout
+            android:id="@+id/loadingOverlay"
+            android:visibility="gone"
+            android:background="#80000000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+            <ProgressBar
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </FrameLayout>
     </LinearLayout>
+
+
 
 </ScrollView>

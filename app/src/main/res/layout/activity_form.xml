@@ -172,20 +172,25 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:text="jenis kelamin*"
-                android:textColor="@color/black" />
+                android:text="Jenis Kelamin*"
+                android:textColor="@color/black"
+                android:layout_marginBottom="4dp"/>
 
-            <EditText
-                android:id="@+id/et_jenis_kelamin"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/background_edit_text"
-                android:inputType="text"
-                android:minHeight="48dp"
-                android:padding="10dp"
-                android:textColor="@color/black" />
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/et_jenis_kelamin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Pilih jenis kelamin"
+                    android:inputType="none"
+                    android:textColor="@color/black"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
 
             <TextView
                 android:layout_width="wrap_content"
@@ -216,37 +221,54 @@
                 android:id="@+id/rg_pilih_mobil"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true"
+                >
 
                 <RadioButton
                     android:id="@+id/rb_avanza"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Toyota Avanza" />
+                    android:text="Toyota Avanza"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false" />
 
                 <RadioButton
                     android:id="@+id/rb_ayla"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Daihatsu Ayla" />
+                    android:text="Daihatsu Ayla"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
 
                 <RadioButton
                     android:id="@+id/rb_calya"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Toyota Calya" />
+                    android:text="Toyota Calya"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
 
                 <RadioButton
                     android:id="@+id/rb_brio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Honda Brio" />
+                    android:text="Honda Brio"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
 
                 <RadioButton
                     android:id="@+id/rb_mobilio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Honda Mobilio" />
+                    android:text="Honda Mobilio"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
             </RadioGroup>
 
 
@@ -296,21 +318,30 @@
                 android:id="@+id/rg_metode_pembayaran"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true"
+                >
 
                 <RadioButton
                     android:id="@+id/rb_transfer_bank"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Trasnfer Bank"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
 
                 <RadioButton
                     android:id="@+id/rb_kredit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Kredit"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
 
                 <RadioButton
                     android:id="@+id/rb_tunai"
@@ -318,7 +349,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="24dp"
                     android:text="Tunai"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
             </RadioGroup>
 
             <LinearLayout
@@ -342,25 +376,37 @@
                     android:id="@+id/rg_opsi_kredit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    >
 
                     <RadioButton
                         android:id="@+id/rb_kredit_minggu"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Per minggu" />
+                        android:text="Per minggu"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        />
 
                     <RadioButton
                         android:id="@+id/rb_kredit_bulan"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Per bulan" />
+                        android:text="Per bulan"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        />
 
                     <RadioButton
                         android:id="@+id/rb_kredit_tahun"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Per tahun" />
+                        android:text="Per tahun"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        />
                 </RadioGroup>
             </LinearLayout>
 

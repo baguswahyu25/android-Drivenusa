@@ -12,6 +12,7 @@ import android.view.animation.BounceInterpolator
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 import projectichif.DriveNusa.api.AuthRepository
 
@@ -23,6 +24,7 @@ class SplashActivity : AppCompatActivity() {
 
         val gearStick = findViewById<ImageView>(R.id.gearStick)
         val logoText = findViewById<ImageView>(R.id.logoText)
+
 
         gearStick.visibility = View.VISIBLE
         logoText.alpha = 0f
@@ -89,17 +91,17 @@ class SplashActivity : AppCompatActivity() {
 
                 lifecycleScope.launch {
                     val isValid = AuthRepository.checkToken(this@SplashActivity)
-                    Log.d("SPLASH_CHECK", "isValid = $isValid")
 
                     if (isValid) {
-                        goToHome()
+                        goToHome() // 🔥 LANGSUNG MASUK HOME
                     } else {
-                        UserLocal.clearToken(this@SplashActivity)
+                        UserLocal.clearSession(this@SplashActivity)
                         goToLogin()
                     }
                 }
 
-            }, 4000) // durasi splash
+            }, 2200) // ⬅️ lebih pendek dari 3000
+
         }
     }
 
@@ -112,4 +114,5 @@ class SplashActivity : AppCompatActivity() {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
+
 }

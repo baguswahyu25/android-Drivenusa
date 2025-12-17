@@ -1,0 +1,87 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA">
+
+    <!-- KONTEN -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- HEADER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_back" />
+
+            <TextView
+                android:text="Promo &amp; Diskon"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    <!-- BANNER -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_banner_promo"
+        android:padding="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:text="DISKON"
+            android:textColor="#FF6F00"
+            android:textStyle="bold"
+            android:background="@drawable/bg_badge_discount"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:text="Promo Spesial Hari Ini"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:text="Hemat hingga 10% untuk layanan tertentu"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:layout_marginTop="6dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
+
+    <!-- LIST PROMO -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPromo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"/>
+    </LinearLayout>
+
+    <!-- 🔥 LOADING DI ATAS SEMUANYA -->
+    <ProgressBar
+        android:id="@+id/loadingPromo"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+</FrameLayout>

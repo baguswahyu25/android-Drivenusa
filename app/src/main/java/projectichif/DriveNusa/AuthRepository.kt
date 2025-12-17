@@ -16,23 +16,31 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import projectichif.DriveNusa.UserLocal
 import projectichif.DriveNusa.utils.FileUtils
 import android.provider.OpenableColumns
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import projectichif.DriveNusa.ApiClient
 import retrofit2.Response
+import projectichif.DriveNusa.api.BotRequest
+import projectichif.DriveNusa.api.BotResponse
+
 
 
 
 object AuthRepository {
 
     // BASE_URL sesuai emulator localhost (10.0.2.2)
-    const val BASE_URL = "https://desainkito.web.id/api/"
+    const val BASE_URL = "http://192.168.1.46:8000/api/"
+    const val BASE_IMAGE_URL = "http://192.168.1.46:8000/storage"
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
         .build()
+
 
     // Setup Retrofit
     private val api: AuthApi by lazy {
@@ -64,19 +72,33 @@ object AuthRepository {
         return res.body() ?: AuthResponse(message = res.errorBody()?.string())
     }
 
-    // LOGIN
-    suspend fun loginUser(email: String, password: String): AuthResponse? {
+    // LOGINa
+    suspend fun loginUser(
+        context: Context,
+        email: String,
+        password: String
+    ): AuthResponse? {
+
         val res = api.loginUser(
             mapOf("email" to email, "password" to password)
         )
-        return res.body() ?: AuthResponse(message = res.errorBody()?.string())
+
+        if (res.isSuccessful) {
+            val body = res.body()
+
+            body?.user?.let { user ->
+
+                UserLocal.clearSession(context)
+
+                UserLocal.saveUser(context, user)
+            }
+
+            return body
+        }
+
+        return AuthResponse(message = res.errorBody()?.string())
     }
 
-    // LOGIN GOOGLE
-    suspend fun loginWithGoogle(idToken: String): AuthResponse? {
-        val res = api.loginWithGoogle(mapOf("token" to idToken))
-        return res.body() ?: AuthResponse(message = res.errorBody()?.string())
-    }
 
     // SEND VERIFICATION EMAIL
     // NOTE: backend kamu menerima Authorization header, jadi kita kirim "Bearer <token>"
@@ -86,14 +108,27 @@ object AuthRepository {
     }
 
     // GET USER
-    suspend fun getUser(context: Context): AuthResponse? {
-        val token = UserLocal.getToken(context) ?: return null   // ← di sini
-        return try {
+    // =======================================================================
+    // GET USER
+    // =======================================================================
+    suspend fun getUser(context: Context): AuthResponse? = withContext(Dispatchers.IO) {
+        val token = UserLocal.getToken(context) ?: return@withContext null
+
+        try {
             val res = api.getUser("Bearer $token")
-            if (res.isSuccessful) res.body() else {
-                Log.e("GET_USER", "HTTP ${res.code()} -> ${res.errorBody()?.string()}")
-                null
+
+            when {
+                res.isSuccessful -> res.body()
+
+                res.code() == 401 || res.code() == 403 -> {
+                    // TOKEN MATI → LOGOUT
+                    UserLocal.clearSession(context)
+                    null
+                }
+
+                else -> null
             }
+
         } catch (e: Exception) {
             Log.e("GET_USER", "Exception: ${e.message}")
             null
@@ -101,56 +136,63 @@ object AuthRepository {
     }
 
 
+
     suspend fun forgotPassword(email: String): AuthResponse? {
         val res = api.forgotPassword(mapOf("email" to email))
         return res.body() ?: AuthResponse(message = res.errorBody()?.string())
     }
 
-    // UPDATE USER (upload)
     suspend fun updateUser(
-        token: String,
+        context: Context,
         name: String,
-        avatar: Uri?,
-        context: Context
-    ): AuthResponse? {
-        val token = UserLocal.getToken(context) ?: return AuthResponse(
-            success = false,
-            message = "Token tidak ditemukan. Silakan login ulang."
-        )
+        photoUri: Uri? = null
+    ): UserData? {
+
+        val token = UserLocal.getToken(context) ?: return null
+        val namePart = name.toRequestBody("text/plain".toMediaTypeOrNull())
+        val photoPart = photoUri?.let { uriToMultipart(context, it, "profile_photo") }
+
         return try {
+            val res = api.updateProfile("Bearer $token", namePart, photoPart)
 
-            val nameBody = RequestBody.create("text/plain".toMediaTypeOrNull(), name)
-            val methodOverride = "PUT".toRequestBody("text/plain".toMediaTypeOrNull())
+            if (res.isSuccessful) {
+                val user = res.body()?.data?.user
+                user?.let {
+                    UserLocal.saveUser(context, it)
+                    photoUri?.let { uri ->
+                        UserLocal.saveProfilePhotoLocal(context, uri, it.id!!)
+                    }
+                }
 
-            val avatarPart: MultipartBody.Part? = if (avatar != null) {
-                val file = File(FileUtils.getPath(context, avatar))
-                val reqFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-
-                MultipartBody.Part.createFormData(
-                    "avatar",
-                    file.name,
-                    reqFile
-                )
+                user
             } else null
 
-            val response = api.updateProfile(
-                auth = "Bearer $token",
-                method = methodOverride,
-                name = nameBody,
-                avatar = avatarPart
-            )
-
-            if (!response.isSuccessful) {
-                Log.e("UPDATE_USER", "Error: ${response.errorBody()?.string()}")
-            }
-
-            if (response.isSuccessful) response.body() else null
-
         } catch (e: Exception) {
-            Log.e("UPDATE_USER", "Exception: ${e.message}")
             null
         }
     }
+
+
+    private fun uriToMultipart(context: Context, uri: Uri, field: String): MultipartBody.Part {
+        val resolver = context.contentResolver
+        val mime = resolver.getType(uri) ?: "image/*"
+        var fileName = "upload_${System.currentTimeMillis()}.jpg"
+
+        resolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (cursor.moveToFirst() && nameIndex >= 0)
+                fileName = cursor.getString(nameIndex)
+        }
+
+        val tempFile = File(context.cacheDir, fileName)
+        resolver.openInputStream(uri)?.use { input ->
+            tempFile.outputStream().use { output -> input.copyTo(output) }
+        }
+
+        val reqBody = tempFile.asRequestBody(mime.toMediaTypeOrNull())
+        return MultipartBody.Part.createFormData(field, fileName, reqBody)
+    }
+
     suspend fun safeApiCall(
         context: Context,
         apiCall: suspend (token: String) -> Response<*>
@@ -225,8 +267,11 @@ object AuthRepository {
         harga: Int,
         pasPhotoUri: Uri,
         ktpUri: Uri
-    ): AuthResponse? {
-        val token = UserLocal.getToken(context) ?: return AuthResponse(success = false, message = "Token tidak ditemukan")
+    ): FormSubmitResponse? {
+
+        val token = UserLocal.getToken(context)
+            ?: return FormSubmitResponse(false, "Token tidak ditemukan")
+
         return try {
             val pasFoto = createMultipart(context, pasPhotoUri, "pas_foto")
             val ktp = createMultipart(context, ktpUri, "ktp")
@@ -246,18 +291,14 @@ object AuthRepository {
                 put("tipe_pendaftaran", str("sim"))
             }
 
-            val response = api.submitFormSim("Bearer $token", parts, pasFoto, ktp)
-            if (!response.isSuccessful) {
-                Log.e("FORM_SIM_ERROR", response.errorBody()?.string() ?: "Unknown error")
-                return AuthResponse(success = false, message = "Validasi gagal") // <-- ganti status ke message
-            }
+            val res = api.submitFormSim("Bearer $token", parts, pasFoto, ktp)
+            res.body() ?: FormSubmitResponse(false, "Server error")
 
-            response.body()
         } catch (e: Exception) {
-            Log.e("FORM_SIM_EXCEPTION", e.message ?: "Unknown error")
-            return AuthResponse(success = false, message = e.message ?: "Terjadi kesalahan") // <-- ganti status ke message
+            FormSubmitResponse(false, e.message ?: "Koneksi gagal")
         }
     }
+
 
 
     // ============================================================
@@ -277,7 +318,10 @@ object AuthRepository {
                 200 -> true  // token valid
                 401, 403 -> false  // token expired / unauthorized
                 else -> {
-                    Log.e("CHECK_TOKEN", "Unexpected response: ${response.errorBody()?.string()}")
+                    if (!response.isSuccessful) {
+                        Log.e("CHECK_TOKEN", "Response code = ${response.code()}")
+                    }
+
                     true  // jangan logout untuk error lain
                 }
             }
@@ -286,6 +330,159 @@ object AuthRepository {
             true  // jangan logout karena network error
         }
     }
+    suspend fun sendBotMessage(
+        context: Context,
+        message: String
+    ): BotResponse? {
+
+        val token = UserLocal.getToken(context) ?: return null
+
+        return try {
+            val response = api.sendBotMessage(
+                token = "Bearer $token",
+                request = BotRequest(message)
+            )
+            if (response.isSuccessful) {
+                response.body()
+            } else {
+                Log.e("BOT_API", "Code: ${response.code()}")
+                Log.e("BOT_API", response.errorBody()?.string() ?: "No error body")
+                null
+
+            }
+
+        } catch (e: Exception) {
+            null
+        }
+        Log.d("BOT_API", "Token = $token")
+
+    }
+    suspend fun changePassword(
+        context: Context,
+        oldPass: String,
+        newPass: String
+    ): AuthResponse {
+
+        val token = UserLocal.getToken(context)
+            ?: return AuthResponse(
+                success = false,
+                message = "Sesi berakhir, silakan login ulang"
+            )
+
+        return try {
+            val response = api.changePassword(
+                "Bearer $token",
+                mapOf(
+                    "old_password" to oldPass,
+                    "new_password" to newPass,
+                    "new_password_confirmation" to newPass
+                )
+            )
+
+            when {
+                response.isSuccessful -> {
+                    AuthResponse(
+                        success = true,
+                        message = "Password berhasil diubah"
+                    )
+                }
+
+                response.code() == 401 -> {
+                    AuthResponse(
+                        success = false,
+                        message = "Password lama salah"
+                    )
+                }
+
+                response.code() == 422 -> {
+                    AuthResponse(
+                        success = false,
+                        message = "Password baru tidak valid"
+                    )
+                }
+
+                else -> {
+                    AuthResponse(
+                        success = false,
+                        message = "Gagal mengubah password, coba lagi"
+                    )
+                }
+            }
+
+        } catch (e: Exception) {
+            AuthResponse(
+                success = false,
+                message = "Koneksi bermasalah, periksa internet"
+            )
+        }
+    }
+
+    suspend fun updateNotifPreference(
+        context: Context,
+        pengingat: Boolean,
+        pembaruanAplikasi: Boolean,
+        pembaruanProduk: Boolean,
+        promo: Boolean
+    ) {
+        val token = UserLocal.getToken(context) ?: return
+
+        api.updateNotifPreference(
+            "Bearer $token",
+            mapOf(
+                "pengingat" to pengingat,
+                "pembaruan_aplikasi" to pembaruanAplikasi,
+                "pembaruan_produk" to pembaruanProduk,
+                "promo" to promo
+            )
+        )
+    }
+    suspend fun sendChat(
+        context: Context,
+        roomId: Int,
+        message: String
+    ): Boolean {
+        val token = UserLocal.getToken(context) ?: return false
+
+        return try {
+            val res = api.sendChat(
+                "Bearer $token",
+                mapOf(
+                    "room_id" to roomId,
+                    "message" to message
+                )
+            )
+            res.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+    suspend fun getChats(
+        context: Context,
+        roomId: Int
+    ): List<ChatMessage>? {
+        val token = UserLocal.getToken(context) ?: return null
+
+        return try {
+            val res = api.getChats("Bearer $token", roomId)
+            if (res.isSuccessful) res.body() else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+//    suspend fun sendFcmToken(context: Context, fcmToken: String) {
+//        val token = UserLocal.getToken(context) ?: return
+//
+//        try {
+//            api.postFcmToken(
+//                "Bearer $token",
+//                mapOf("token" to fcmToken)
+//            )
+//        } catch (e: Exception) {
+//            Log.e("FCM", "Gagal kirim token", e)
+//        }
+//    }
+
+
 }
 
 

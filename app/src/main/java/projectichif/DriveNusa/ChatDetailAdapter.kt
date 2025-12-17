@@ -6,7 +6,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ChatDetailAdapter(private val messages: List<Message>) :
+class ChatDetailAdapter(private val messages: MutableList<Message>) :
     RecyclerView.Adapter<ChatDetailAdapter.MessageViewHolder>() {
 
     companion object {
