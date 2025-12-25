@@ -19,14 +19,18 @@ class SyaratActivity : AppCompatActivity() {
         binding = ActivitySyaratBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.hide()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Ambil nama paket yang dikirim dari Fragment
+        binding.btnBack.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
+        // Ambil nama paket dari intent
         val paketNama = intent.getStringExtra(EXTRA_PAKET_NAMA)
 
         binding.btnLanjutkan.isEnabled = false
 
-        // Ketika checkbox "setuju" dicentang → aktifkan tombol
+        // Checkbox setuju
         binding.cbSetuju.setOnCheckedChangeListener { _, isChecked ->
             binding.btnLanjutkan.isEnabled = isChecked
             if (isChecked) {
@@ -34,30 +38,33 @@ class SyaratActivity : AppCompatActivity() {
             }
         }
 
-        // Logika penentuan FormActivity / FormSimActivity
         binding.btnLanjutkan.setOnClickListener {
-            if (paketNama == null) {
+
+            if (paketNama.isNullOrEmpty()) {
                 Toast.makeText(this, "Paket tidak ditemukan!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // *** Routing berdasarkan nama paket ***
-            val isSim = paketNama.contains("SIM", ignoreCase = true)
+            val paket = paketNama.lowercase()
 
-            val targetActivity = if (isSim) {
-                FormSimActivity::class.java
-            } else {
-                FormActivity::class.java
+            val jenisPaket = when {
+                paket.contains("automatic") -> "automatic"
+                else -> "manual"
             }
 
-            val intent = Intent(this, targetActivity)
+            val tipePendaftaran = if (paket.contains("sim")) "sim" else "non_sim"
+
+
+            val intent = Intent(this, FormActivity::class.java)
             intent.putExtra(EXTRA_PAKET_NAMA, paketNama)
+            intent.putExtra("extra_tipe_pendaftaran", tipePendaftaran)
+            intent.putExtra("extra_jenis_paket", jenisPaket)
+
             startActivity(intent)
         }
-
-        // Tombol Kembali
-        binding.btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+    }override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
+
 }

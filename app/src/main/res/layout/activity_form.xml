@@ -217,59 +217,16 @@
                 android:textColor="@color/black"
                 android:layout_marginBottom="8dp"/>
 
-            <RadioGroup
-                android:id="@+id/rg_pilih_mobil"
-                android:layout_width="match_parent"
+            <TextView
+                android:text="Mobil *"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:focusable="true"
-                >
+                android:textColor="@color/black"/>
 
-                <RadioButton
-                    android:id="@+id/rb_avanza"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Toyota Avanza"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false" />
-
-                <RadioButton
-                    android:id="@+id/rb_ayla"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Daihatsu Ayla"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    />
-
-                <RadioButton
-                    android:id="@+id/rb_calya"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Toyota Calya"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    />
-
-                <RadioButton
-                    android:id="@+id/rb_brio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Honda Brio"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    />
-
-                <RadioButton
-                    android:id="@+id/rb_mobilio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Honda Mobilio"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    />
-            </RadioGroup>
+            <Spinner
+                android:id="@+id/spinnerMobil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
 
 
@@ -435,26 +392,25 @@
                 android:text="Pastikan data diri anda sudah terisi dengan benar"
                 android:textColor="@color/black" />
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:gravity="center"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:visibility="gone"
-                    android:indeterminate="true" />
+                android:layout_height="48dp">
 
                 <Button
                     android:id="@+id/btnSimpan"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="12dp"
+                    android:layout_height="match_parent"
                     android:text="Simpan" />
-            </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    android:indeterminate="true"/>
+            </FrameLayout>
+
 
 
         </LinearLayout>

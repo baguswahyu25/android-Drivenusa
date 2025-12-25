@@ -100,7 +100,7 @@ class VerificationActivity : AppCompatActivity() {
 
         try {
             // Kirim ulang email verifikasi menggunakan token (AuthRepository akan menambahkan "Bearer ")
-            val response = AuthRepository.sendVerificationEmail(tokenUser)
+            val response = AuthRepository.sendVerificationEmail()
 
             hideLoading()
 

@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 import projectichif.DriveNusa.api.AuthRepository
 import projectichif.DriveNusa.databinding.ActivityHomeBinding

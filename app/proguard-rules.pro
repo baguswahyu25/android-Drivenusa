@@ -11,6 +11,15 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+# ===== MIDTRANS =====
+-keep class com.midtrans.** { *; }
+-dontwarn com.midtrans.**
+
+# ===== OKHTTP LOGGING (STRIP DI RELEASE) =====
+-assumenosideeffects class okhttp3.logging.** {
+    public *;
+}
+
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.

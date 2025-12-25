@@ -110,7 +110,7 @@ class RegisterActivity : AppCompatActivity() {
                     // SIMPAN TOKEN DI SharedPreferences
                     // ============================
                     val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-                    prefs.edit().putString("token", response.token).apply()
+                    prefs.edit().putString("token", response.tokenType).apply()
 
                     Toast.makeText(
                         this@RegisterActivity,

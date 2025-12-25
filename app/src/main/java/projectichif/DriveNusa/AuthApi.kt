@@ -1,12 +1,14 @@
             package projectichif.DriveNusa.api
 
             import com.google.gson.annotations.SerializedName
+            import okhttp3.Interceptor
             import okhttp3.MultipartBody
             import okhttp3.RequestBody
             import projectichif.DriveNusa.PromoItem
             import retrofit2.Response
             import retrofit2.http.*
             import okhttp3.ResponseBody
+            import projectichif.DriveNusa.ApiClient
             import projectichif.DriveNusa.NotificationItem
             import projectichif.DriveNusa.api.AuthRepository
 
@@ -37,7 +39,6 @@
                 val mobil_dipilih: String, // 🔥 perbaikan
                 val metode_pembayaran: String,
                 val opsi_kredit: String? = null,
-                val harga: Int,
                 val tipe_pendaftaran: String = "non_sim" // 🔥 default sesuai migration
             )
 
@@ -49,6 +50,12 @@
 
             data class UpdateProfileData(
                 @SerializedName("user") val user: UserData
+            )
+            data class PendaftaranDetailResponse(
+                val paket_nama: String,
+                val total: Int,
+                val metode: String,
+                val tanggal: String
             )
 
             data class ChatMessage(
@@ -64,13 +71,100 @@
                 val isSentByUser: Boolean,
                 val avatar: Int? = null
             )
+            data class LoginRequest(
+                val email: String,
+                val password: String
+            )
+            data class PaketKursus(
+                val nama: String,
+                val harga: String,
+                val image: String
+            )
+
+            data class PaketKursusResponse(
+                val id: Int,
+                val nama: String,
+                val harga: Int,
+                val tipe: String,
+                val image: String
+            )
+            data class RiwayatModel(
+                val id: Int,
+                val image: String,
+                val judul: String,
+                val paket: String,
+                val harga: Int,
+                val tanggal: String,
+                val status: String
+            )
+            data class DetailPemesananResponse(
+
+                val id: Int,
+                val judul: String,
+                val paket: String,
+                val harga: Int,
+                val tanggal: String,
+                val status: String,
+
+                @SerializedName("order_id")
+                val orderId: String,
+
+                @SerializedName("metode_pembayaran")
+                val metodePembayaran: String,
+
+                @SerializedName("payment_status")
+                val paymentStatus: String
+            )
+
+            data class RiwayatResponse(
+                val id: Int,
+                val judul: String,
+                val paket: String,
+                val harga: Int,
+                val tanggal: String
+            )
+
+            // Request register
+            data class RegisterRequest(
+                val name: String,
+                val email: String,
+                val password: String,
+                val password_confirmation: String
+            )
+
+            // Data user
+            data class User(
+                val id: Int,
+                val name: String,
+                val email: String,
+                val emailConfirmedAt: String?,
+                val token: String?
+            )
+
+            // snap midtrans
+            data class SnapResponse(
+                val snap_token: String,
+                val order_id: String,
+                val amount: Int
+            )
+            data class SnapRequest(
+                val pendaftaran_id: Int,
+                val metode: String
+            )
+            data class PaymentStatusResponse(
+                val status: String,
+                val paket_nama: String?,
+                val metode: String?,
+                val total: Int?
+            )
 
 
 
             data class FormSubmitResponse(
                 val success: Boolean,
                 val message: String?,
-                val data: Any? = null
+                val data: Any? = null,
+                val pendaftaran_id: Int? = null   // ✅ FIX UTAMA
             )
 
 
@@ -94,7 +188,9 @@
                 @SerializedName("success") val success: Boolean? = null,
                 @SerializedName("status") val status: Boolean? = null,
                 @SerializedName("message") val message: String? = null,
-                @SerializedName("token") val token: String? = null,
+                @SerializedName("access_token") val accessToken: String? = null,
+                @SerializedName("token_type") val tokenType: String? = null,
+
 
                 @SerializedName("user") val user: UserData? = null,
                 @SerializedName("data") val data: UserData? = null,
@@ -109,16 +205,16 @@
                 ) {
 
                 fun isSuccess(): Boolean {
-                    return (success == true || status == true || !token.isNullOrEmpty())
+                    return !accessToken.isNullOrEmpty()
                 }
 
                 fun getUserModel(): UserData? {
                     val u = user ?: data
                     if (u != null) {
-                        val safeUrl = u.profilePhotoUrl?.let { url ->
-                            if (url.startsWith("http")) url
-                            else "${AuthRepository.BASE_IMAGE_URL}/$url"
-                        }
+                        val safeUrl = u.profilePhotoUrl
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { if (it.startsWith("http")) it else "${ApiClient.BASE_IMAGE_URL}/$it" }
+
                         return u.copy(profilePhotoUrl = safeUrl)
                     }
                     return null
@@ -127,90 +223,110 @@
 
 
             }
+            fun PaketKursusResponse.toPaketKursus(): PaketKursus {
+                return PaketKursus(
+                    nama = this.nama,             // ← sesuaikan dengan field yang ada
+                    harga = "Rp ${this.harga}",   // ← sesuaikan dengan field yang ada
+                    image = this.image
+                )
+            }
+            class AuthInterceptor(private val tokenProvider: () -> String?) : Interceptor {
+                override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+                    val builder = chain.request().newBuilder()
+                        .addHeader("Accept", "application/json")
+
+                    tokenProvider()?.let {
+                        builder.addHeader("Authorization", "Bearer $it")
+                    }
+
+                    return chain.proceed(builder.build())
+                }
+            }
+
 
             // =============================
             // 3. AUTH API
             // =============================
             interface AuthApi {
 
-                // ===== AUTH =====
                 @POST("login")
                 suspend fun loginUser(@Body data: Map<String, String>): Response<AuthResponse>
 
                 @POST("register")
-                suspend fun registerUser(@Body data: Map<String, String>): Response<AuthResponse>
+                suspend fun register(
+                    @Body body: RegisterRequest
+                ): Response<AuthResponse>
+
+
 
                 @GET("user")
-                suspend fun getUser(@Header("Authorization") token: String): Response<AuthResponse>
+                suspend fun getUser(): Response<AuthResponse>
 
                 @Multipart
                 @POST("user/update")
                 suspend fun updateProfile(
-                    @Header("Authorization") token: String,
                     @Part("name") name: RequestBody,
                     @Part profile_photo: MultipartBody.Part?
                 ): Response<UpdateProfileResponse>
 
+                @POST("user/change-password")
+                suspend fun changePassword(@Body data: Map<String, String>): Response<AuthResponse>
 
-            @POST("user/change-password")
-            suspend fun changePassword(
-                @Header("Authorization") token: String,
-                @Body data: Map<String, String>
-            ): Response<AuthResponse>
+                @POST("email/resend")
+                suspend fun sendVerificationEmail(): Response<AuthResponse>
 
-            @POST("email/resend")
-            suspend fun sendVerificationEmail(@Header("Authorization") token: String): Response<AuthResponse>
+                @POST("forgot-password")
+                suspend fun forgotPassword(@Body data: Map<String, String>): Response<AuthResponse>
 
-            @POST("forgot-password")
-            suspend fun forgotPassword(@Body data: Map<String, String>): Response<AuthResponse>
+                @POST("v1/pendaftaran")
+                suspend fun submitForm(
+                    @Body data: FormRequest
+                ): Response<FormSubmitResponse>
 
-            // ===== FORM =====
-            @POST("v1/pendaftaran")
-            suspend fun submitForm(
-                @Header("Authorization") token: String,
-                @Body data: FormRequest
-            ): Response<FormSubmitResponse>
 
-            @Multipart
-            @POST("v1/pendaftaran")
-            suspend fun submitFormSim(
-                @Header("Authorization") token: String,
-                @PartMap parts: Map<String, @JvmSuppressWildcards RequestBody>,
-                @Part pas_foto: MultipartBody.Part,
-                @Part ktp: MultipartBody.Part
-            ): Response<FormSubmitResponse>
+                @POST("bot/chat")
+                suspend fun sendBotMessage(@Body request: BotRequest): Response<BotResponse>
 
-            // ===== BOT =====
-            @POST("bot/chat")
-            suspend fun sendBotMessage(
-                @Header("Authorization") token: String,
-                @Body request: BotRequest
-            ): Response<BotResponse>
+                @POST("user/notification-preference")
+                suspend fun updateNotifPreference(@Body body: Map<String, Boolean>): Response<AuthResponse>
 
-            // ===== NOTIF =====
-            @POST("user/notification-preference")
-            suspend fun updateNotifPreference(
-                @Header("Authorization") token: String,
-                @Body body: Map<String, Boolean>
-            ): Response<AuthResponse>
+                @GET("promos")
+                suspend fun getPromos(): Response<List<PromoItem>>
 
-            // ===== PROMO =====
-            @GET("promos")
-            suspend fun getPromos(): Response<List<PromoItem>>
+                @GET("promos/{id}")
+                suspend fun getPromoDetail(@Path("id") id: Int): Response<PromoItem>
 
-            @GET("promos/{id}")
-            suspend fun getPromoDetail(@Path("id") id: Int): Response<PromoItem>
+                @POST("chat/send")
+                suspend fun sendChat(@Body body: Map<String, Any>): Response<Unit>
 
-            // ===== CHAT =====
-            @POST("chat/send")
-            suspend fun sendChat(
-                @Header("Authorization") token: String,
-                @Body body: Map<String, Any>
-            ): Response<Unit>
+                @GET("chat/{roomId}")
+                suspend fun getChats(@Path("roomId") roomId: Int): Response<List<ChatMessage>>
 
-            @GET("chat/{roomId}")
-            suspend fun getChats(
-                @Header("Authorization") token: String,
-                @Path("roomId") roomId: Int
-            ): Response<List<ChatMessage>>
-        }
+                @POST("v1/payment/snap")
+                suspend fun getSnapToken(
+                    @Body request: SnapRequest
+                ): Response<SnapResponse>
+                @GET("v1/payment/status/{id}")
+                suspend fun checkPaymentStatus(
+                    @Path("id") pendaftaranId: Int
+                ): Response<PaymentStatusResponse>
+
+                @GET("v1/riwayat-pemesanan")
+                suspend fun getRiwayatPemesanan(): Response<List<RiwayatModel>>
+
+
+                @GET("v1/riwayat-pemesanan/{id}")
+                suspend fun getDetailPemesanan(
+                    @Path("id") id: Int
+                ): Response<DetailPemesananResponse>
+
+                @GET("paket-kursus")
+                suspend fun getPaketKursus(): Response<List<PaketKursusResponse>>
+                @GET("v1/pendaftaran/{id}")
+                suspend fun getPendaftaranDetail(
+                    @Path("id") id: Int
+                ): Response<PendaftaranDetailResponse>
+
+
+            }
+

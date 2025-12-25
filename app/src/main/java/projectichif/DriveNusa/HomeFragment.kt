@@ -8,31 +8,32 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
+import projectichif.DriveNusa.api.PaketKursus
+import projectichif.DriveNusa.api.AuthApi
+import projectichif.DriveNusa.api.toPaketKursus
 import projectichif.DriveNusa.databinding.FragmentHomeBinding
 import projectichif.DriveNusa.utils.JadwalPrefs
+import androidx.fragment.app.activityViewModels
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-
-    private lateinit var sliderAdapter: ImageSliderAdapter
+    private val viewModel: PaketKursusViewModel by activityViewModels()
+    private lateinit var adapter: PaketKursusAdapter
     private val handler = Handler(Looper.getMainLooper())
     private var currentPage = 0
 
-    private val sliderItems = listOf(
+    private var sliderItems = listOf(
         ImageSlider(R.drawable.img_slider_1),
         ImageSlider(R.drawable.img_slider_2),
         ImageSlider(R.drawable.img_slider_3)
     )
 
-    private val paketKursusList = listOf(
-        PaketKursus("Paket Manual", "Rp 1.150.000", R.drawable.img_paket_manual),
-        PaketKursus("Paket Automatic", "Rp 1.250.000", R.drawable.img_paket_automatic),
-        PaketKursus("Paket Manual Sim", "Rp 2.100.000", R.drawable.img_paket_manual_sim_baru),
-        PaketKursus("Paket Automatic Sim", "Rp 2.200.000", R.drawable.img_paket_automatic_sim)
-    )
+    private lateinit var sliderAdapter: ImageSliderAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,72 +46,42 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Search
+        // Search click
         binding.cardSearch.setOnClickListener {
             val intent = Intent(requireContext(), SearchActivity::class.java)
             intent.putExtra("query", "")
             startActivity(intent)
         }
-
-        // Slider
+        binding.cardPertemuan.setOnClickListener {
+            startActivity(Intent(requireContext(), PengajuanJadwalActivity::class.java))
+        }
+        // Slider setup
         sliderAdapter = ImageSliderAdapter(sliderItems)
         binding.viewPagerSlider.adapter = sliderAdapter
         binding.viewPagerSlider.offscreenPageLimit = 1
         startAutoSlide()
 
-        // Paket Kursus
+        adapter = PaketKursusAdapter(emptyList(), object : OnPaketClickListener {
+            override fun onPilihClicked(paket: PaketKursus) {
+                startActivity(
+                    Intent(requireContext(), SyaratActivity::class.java)
+                        .putExtra(SyaratActivity.EXTRA_PAKET_NAMA, paket.nama)
+                )
+            }
+        })
+
         binding.rvPaketKursus.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvPaketKursus.adapter = PaketKursusAdapter(
-            paketKursusList,
-            object : OnPaketClickListener {
-                override fun onPilihClicked(paket: PaketKursus) {
-                    val intent = Intent(requireContext(), SyaratActivity::class.java)
-                    intent.putExtra(SyaratActivity.EXTRA_PAKET_NAMA, paket.nama)
-                    startActivity(intent)
-                }
-            }
-        )
-        binding.cardPertemuan.setOnClickListener {
-            startActivity(Intent(requireContext(), PengajuanJadwalActivity::class.java))
+        binding.rvPaketKursus.adapter = ShimmerAdapter(5)
+
+        // ✅ OBSERVE DATA DARI VIEWMODEL
+        viewModel.paketKursus.observe(viewLifecycleOwner) { list ->
+            binding.rvPaketKursus.adapter = adapter
+            adapter.updateData(list)
         }
 
+        // ✅ LOAD SEKALI SAJA (AMAN)
+        viewModel.loadPaketKursus()
     }
-
-    override fun onResume() {
-        super.onResume()
-        refreshJadwal()
-    }
-
-    /** ==============================
-     *  FUNGSI INTI UNTUK UPDATE UI
-     *  ============================== */
-    private fun refreshJadwal() {
-        val statusList = JadwalPrefs.getStatusList(requireContext())
-
-        // Cari pertemuan pertama yang belum diajukan
-        val nextIndex = statusList.indexOfFirst { it == 0 || it == 1 }
-
-        if (nextIndex != -1) {
-            binding.tvPertemuan.text = "Pertemuan ${nextIndex + 1}"
-
-            when (statusList[nextIndex]) {
-                0 -> { // Belum diajukan
-                    binding.tvStatus.text = "Belum diajukan"
-                    binding.tvStatus.setTextColor(android.graphics.Color.BLACK)
-                }
-                1 -> { // Diproses
-                    binding.tvStatus.text = "Diproses..."
-                    binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#FF9800"))
-                }
-            }
-        } else {
-            // Semua selesai
-            binding.tvPertemuan.text = "Semua pertemuan selesai"
-            binding.tvStatus.text = "Selesai"
-            binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#4CAF50"))
-        }
-    }
-
 
 
     private fun startAutoSlide() {
@@ -126,9 +97,38 @@ class HomeFragment : Fragment() {
         handler.postDelayed(runnable, 3000)
     }
 
+    override fun onResume() {
+        super.onResume()
+        refreshJadwal()
+    }
+
+    private fun refreshJadwal() {
+        val statusList = JadwalPrefs.getStatusList(requireContext())
+        val nextIndex = statusList.indexOfFirst { it == 0 || it == 1 }
+
+        if (nextIndex != -1) {
+            binding.tvPertemuan.text = "Pertemuan ${nextIndex + 1}"
+            when (statusList[nextIndex]) {
+                0 -> {
+                    binding.tvStatus.text = "Belum diajukan"
+                    binding.tvStatus.setTextColor(android.graphics.Color.BLACK)
+                }
+                1 -> {
+                    binding.tvStatus.text = "Diproses..."
+                    binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#FF9800"))
+                }
+            }
+        } else {
+            binding.tvPertemuan.text = "Semua pertemuan selesai"
+            binding.tvStatus.text = "Selesai"
+            binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#4CAF50"))
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         handler.removeCallbacksAndMessages(null)
         _binding = null
     }
 }
+

@@ -3,7 +3,10 @@ package projectichif.DriveNusa
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import projectichif.DriveNusa.databinding.ActivityDetailPemesananBinding
+import java.text.NumberFormat
 
 class DetailPemesananActivity : AppCompatActivity() {
 
@@ -14,33 +17,46 @@ class DetailPemesananActivity : AppCompatActivity() {
         binding = ActivityDetailPemesananBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Ambil data dari adapter
-        val judul = intent.getStringExtra("judul")
-        val paket = intent.getStringExtra("paket")
-        val harga = intent.getStringExtra("harga")
-        val tanggal = intent.getStringExtra("tanggal")
-        val gambar = intent.getIntExtra("gambar", 0)
+        binding.btnBack.setOnClickListener { finish() }
 
-        // Set data
-        binding.tvJudul.text = judul
-        binding.tvPaket.text = paket
-        binding.tvHarga.text = harga
-        binding.tvTanggalBayar.text = "Tanggal bayar: $tanggal"
+        val id = intent.getIntExtra("id", 0)
+        loadDetail(id)
+    }
 
-        if (gambar != 0) binding.imgMobil.setImageResource(gambar)
+    private fun loadDetail(id: Int) {
+        lifecycleScope.launch {
+            val response = ApiClient.authApi.getDetailPemesanan(id)
+            if (response.isSuccessful && response.body() != null) {
 
-        binding.btnPengajuan.setOnClickListener {
-            val intent = Intent(this, PengajuanJadwalActivity::class.java)
-            startActivity(intent)
-        }
+                val data = response.body()!!
 
-        binding.btnBeranda.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }
+                // Header
+                binding.tvJudul.text = data.judul
+                binding.tvPaket.text = data.paket
+                binding.tvHarga.text =
+                    "Rp ${NumberFormat.getInstance().format(data.harga)}"
 
+                // Detail pembayaran
+                binding.tvNamaPengirim.text = "order id : ${data.orderId}"
+                binding.tvNamaPenerima.text = "nama penerima : dhuha group"
+                binding.tvTanggalBayar.text = "tanggal bayar : ${data.tanggal}"
+                binding.tvMetodeBayar.text =
+                    "metode pembayaran : ${data.metodePembayaran}"
+
+                // Status
+                binding.tvStatus.text = data.paymentStatus
+
+                if (data.status == "PAID") {
+                    binding.tvStatus.setBackgroundResource(R.drawable.bg_status_paid)
+                } else {
+                    binding.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+                }
+            }
         }
     }
+}
+
+
+
+
 

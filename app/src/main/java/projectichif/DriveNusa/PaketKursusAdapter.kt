@@ -3,17 +3,17 @@ package projectichif.DriveNusa
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import projectichif.DriveNusa.api.PaketKursus
 import projectichif.DriveNusa.databinding.ItemPaketKursusBinding
 
-// INTERFACE BARU: Untuk menangani klik tombol Pilih
 interface OnPaketClickListener {
     fun onPilihClicked(paket: PaketKursus)
 }
 
 class PaketKursusAdapter(
-    // Jadikan hanya satu list yang bisa diubah lewat updateData
     private var paketList: List<PaketKursus>,
-    // listener boleh null (default null) agar pemanggil bisa melewatkannya jika perlu
     private val listener: OnPaketClickListener? = null
 ) : RecyclerView.Adapter<PaketKursusAdapter.PaketViewHolder>() {
 
@@ -28,9 +28,13 @@ class PaketKursusAdapter(
         fun bind(paket: PaketKursus) {
             binding.tvNamaPaket.text = paket.nama
             binding.tvHarga.text = paket.harga
-            binding.imgPaketMobil.setImageResource(paket.imageResId)
 
-            // Fungsionalitas Tombol Pilih — aman walau listener = null
+            // Load image dari URL Laravel storage
+            Glide.with(binding.imgPaketMobil.context)
+                .load(paket.image)
+                .apply(RequestOptions().placeholder(R.drawable.img_placeholder))
+                .into(binding.imgPaketMobil)
+
             binding.btnPilih.setOnClickListener {
                 listener?.onPilihClicked(paket)
             }
@@ -50,7 +54,5 @@ class PaketKursusAdapter(
         holder.bind(paketList[position])
     }
 
-    override fun getItemCount(): Int {
-        return paketList.size
-    }
+    override fun getItemCount(): Int = paketList.size
 }

@@ -1,10 +1,14 @@
-package projectichif.DriveNusa
+package projectichif.DriveNusa.ui
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-
+import kotlinx.coroutines.launch
+import projectichif.DriveNusa.ApiClient
+import projectichif.DriveNusa.DetailPemesananActivity
+import projectichif.DriveNusa.adapter.RiwayatAdapter
 import projectichif.DriveNusa.databinding.ActivityRiwayatPemesananBinding
 
 class RiwayatPemesananActivity : AppCompatActivity() {
@@ -18,24 +22,27 @@ class RiwayatPemesananActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        val data = listOf(
-            RiwayatModel("Kursus mengemudi", "paket manual", "Rp 1.150.000", "13:00, 12-09-2025", R.drawable.img_paket_manual),
-            RiwayatModel("Kursus mengemudi", "paket automatic", "Rp 1.250.000", "18:00, 08-09-2025", R.drawable.img_paket_automatic)
-        )
-
-        val adapter = RiwayatAdapter(data) { selected ->
-            val intent = Intent(this, DetailPemesananActivity::class.java)
-            intent.putExtra("judul", selected.judul)
-            intent.putExtra("paket", selected.paket)
-            intent.putExtra("harga", selected.harga)
-            intent.putExtra("tanggal", selected.tanggal)
-            intent.putExtra("gambar", selected.gambar)
-            startActivity(intent)
-        }
-
         binding.rvRiwayat.layoutManager = LinearLayoutManager(this)
-        binding.rvRiwayat.adapter = adapter
 
-
+        loadRiwayat()
     }
+
+    private fun loadRiwayat() {
+        lifecycleScope.launch {
+            val response = ApiClient.authApi.getRiwayatPemesanan()
+            if (response.isSuccessful && !response.body().isNullOrEmpty()) {
+                binding.rvRiwayat.adapter = RiwayatAdapter(response.body()!!) { selected ->
+                    val intent = Intent(this@RiwayatPemesananActivity, DetailPemesananActivity::class.java)
+                    intent.putExtra("id", selected.id)
+                    startActivity(intent)
+                }
+            }
+        }
+    }
+    override fun onResume() {
+        super.onResume()
+        loadRiwayat()
+    }
+
+
 }

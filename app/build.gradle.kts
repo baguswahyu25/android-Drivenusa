@@ -34,73 +34,58 @@ android {
     buildFeatures {
 
         viewBinding = true
-
+        buildConfig = true
     }
 
 
 
     compileOptions {
 
-        sourceCompatibility = JavaVersion.VERSION_17
-
-        targetCompatibility = JavaVersion.VERSION_17
-
-        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility =  JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
 
     }
 
+    configurations.all {
+        resolutionStrategy {
+            force ("androidx.core:core-ktx:1.12.0")
+            force ("androidx.appcompat:appcompat:1.6.1")
+        }
+    }
 
 
     kotlin {
 
         compilerOptions {
 
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-
-        }
-
-    }
-
-    configurations.all {
-
-        resolutionStrategy {
-
-            force("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-
-            force("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
-
-            force("androidx.activity:activity-ktx:1.9.3")
-
-            force("androidx.core:core-ktx:1.12.0")
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
 
         }
 
     }
 
     val navVersion = "2.7.3"
-
     dependencies {
+        implementation("com.midtrans:uikit:2.3.0-SANDBOX")
+
         // Glide
         implementation("com.github.bumptech.glide:glide:4.16.0")
         kapt("com.github.bumptech.glide:compiler:4.16.0")
         implementation("androidx.navigation:navigation-fragment-ktx:${navVersion}")
         implementation("androidx.navigation:navigation-ui-ktx:${navVersion}")
-        implementation ("com.github.bumptech.glide:glide:4.16.0")
-        // ===== FIREBASE (FCM) =====
-        implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
-        implementation("com.google.firebase:firebase-messaging")
+
+
+        //datastore
         implementation("androidx.datastore:datastore-preferences:1.1.1")
-        implementation("com.android.volley:volley:1.2.1")
+
+
 
 //shimmer
         implementation("com.facebook.shimmer:shimmer:0.5.0")
 // ✅ AndroidX Core & UI
-
+        implementation("androidx.appcompat:appcompat:1.6.1")
         implementation("androidx.core:core-ktx:1.12.0")
-
-        implementation("androidx.appcompat:appcompat:1.7.0")
-
-        implementation("com.google.android.material:material:1.12.0")
+        implementation("com.google.android.material:material:1.11.0")
 
 
 
@@ -134,17 +119,8 @@ android {
 
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-
-
-// ✅ Desugar agar Java 17 aman di Android
-
-        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-
-
-
 // ✅ Testing
 
-        implementation("com.google.firebase:firebase-messaging:23.4.1")
         testImplementation("junit:junit:4.13.2")
 
         androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -163,23 +139,8 @@ android {
 
         implementation("de.hdodenhof:circleimageview:3.1.0")
 
-        implementation("com.airbnb.android:lottie:6.3.0")
-        implementation("com.google.android.material:material:1.12.0")
-
     }
 
 
-
-}
-
-dependencies {
-
-    implementation(libs.androidx.appcompat)
-
-    implementation(libs.material)
-
-    implementation(libs.androidx.activity)
-
-    implementation(libs.androidx.constraintlayout)
 
 }

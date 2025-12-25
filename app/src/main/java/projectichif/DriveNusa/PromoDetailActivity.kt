@@ -46,9 +46,7 @@ class PromoDetailActivity : AppCompatActivity() {
         if (promoId != -1) {
             lifecycleScope.launch {
                 try {
-                    val response = AuthRepository
-                        .getAuthApi()
-                        .getPromoDetail(promoId)
+                    val response =ApiClient.authApi.getPromoDetail(promoId)
 
                     if (response.isSuccessful) {
                         val promo = response.body() ?: return@launch

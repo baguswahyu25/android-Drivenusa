@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
         android:icon="@drawable/drivenusa"
         android:label="@string/app_name"
@@ -69,7 +70,7 @@
             android:name=".DetailPemesananActivity"
             android:exported="false" />
         <activity
-            android:name=".RiwayatPemesananActivity"
+            android:name=".ui.RiwayatPemesananActivity"
             android:exported="false" />
         <activity
             android:name=".EditProfileActivity"
@@ -90,21 +91,18 @@
             android:name=".ui.pembayaran.PembayaranKreditActivity"
             android:exported="false" />
         <activity
-            android:name=".FormSimActivity"
-            android:exported="false" />
-        <activity
             android:name=".PromoActivity"
             android:exported="false"  />
         <activity
             android:name=".PromoDetailActivity"
             android:exported="false"  />
-<!--        <service-->
-<!--            android:name=".MyFirebaseMessagingService"-->
-<!--            android:exported="false">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.google.firebase.MESSAGING_EVENT" />-->
-<!--            </intent-filter>-->
-<!--        </service>-->
+        <activity
+            android:name=".PaymentActivity"
+            android:exported="false"  />
+        <activity
+        android:name=".ui.pembayaran.PembayaranBerhasilActivity"
+        android:exported="false" />
+
 
 
     </application>

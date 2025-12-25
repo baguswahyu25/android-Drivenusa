@@ -23,6 +23,7 @@
     import projectichif.DriveNusa.ui.support.SupportFragment
     import projectichif.DriveNusa.ui.terms.TermsActivity
     import projectichif.DriveNusa.api.UserData
+    import projectichif.DriveNusa.ui.RiwayatPemesananActivity
 
     class ProfileFragment : Fragment() {
 

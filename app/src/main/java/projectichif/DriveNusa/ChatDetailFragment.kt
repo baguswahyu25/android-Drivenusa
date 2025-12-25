@@ -93,7 +93,11 @@ class ChatDetailFragment : Fragment() {
             if (text.isEmpty()) return@setOnClickListener
 
             lifecycleScope.launch {
-                val success = AuthRepository.sendChat(requireContext(), roomId, text)
+                val success = AuthRepository.sendChat(
+                    roomId = roomId,
+                    message = text
+                )
+
                 if (success) {
                     val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                     messagesList.add(Message(text, time, true))

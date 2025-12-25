@@ -5,7 +5,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
+import projectichif.DriveNusa.api.PaketKursus
+import projectichif.DriveNusa.api.toPaketKursus
 import projectichif.DriveNusa.databinding.ActivitySearchBinding
 
 class SearchActivity : AppCompatActivity() {
@@ -14,23 +18,15 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var adapter: PaketKursusAdapter
     private lateinit var historyAdapter: SearchHistoryAdapter
 
-    // Data paket
-    private val paketList = listOf(
-        PaketKursus("Paket Manual", "Rp 1.150.000", R.drawable.img_paket_manual),
-        PaketKursus("Paket Automatic", "Rp 1.250.000", R.drawable.img_paket_automatic),
-        PaketKursus("Paket Manual Sim", "Rp 2.100.000", R.drawable.img_paket_manual_sim_baru),
-        PaketKursus("Paket Automatic Sim", "Rp 2.200.000", R.drawable.img_paket_automatic_sim)
-    )
+    private var paketList: List<PaketKursus> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Tombol back
         binding.btnBack.setOnClickListener { finish() }
 
-        // Adapter paket (kosong dulu)
         adapter = PaketKursusAdapter(emptyList(), object : OnPaketClickListener {
             override fun onPilihClicked(paket: PaketKursus) {
                 val intent = Intent(this@SearchActivity, SyaratActivity::class.java)
@@ -42,10 +38,10 @@ class SearchActivity : AppCompatActivity() {
         binding.rvSearch.layoutManager = LinearLayoutManager(this)
         binding.rvSearch.adapter = adapter
 
-        // Tampilkan riwayat pertama kali
-        showHistory()
+        // Load paket kursus dari API
+        loadPaketKursus()
 
-        // Ketika user mengetik
+        // Search TextWatcher
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -55,7 +51,6 @@ class SearchActivity : AppCompatActivity() {
             }
         })
 
-        // Simpan riwayat ketika user tekan Enter (Keyboard)
         binding.etSearch.setOnEditorActionListener { _, _, _ ->
             val text = binding.etSearch.text.toString()
             SearchHistoryManager.saveQuery(this, text)
@@ -64,30 +59,39 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadPaketKursus() {
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.authApi.getPaketKursus()
+                if (response.isSuccessful) {
+                    val paketResponseList = response.body() ?: emptyList()
+                    paketList = paketResponseList.map { it.toPaketKursus() }
+                    adapter.updateData(paketList)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
-    // FILTER PAKET KURSUS
+
     private fun filter(text: String) {
         val filtered = paketList.filter {
             it.nama.contains(text, ignoreCase = true)
         }
         adapter.updateData(filtered)
-        binding.rvSearch.adapter = adapter
     }
 
-
-    // TAMPILKAN RIWAYAT PENCARIAN
     private fun showHistory() {
         val history = SearchHistoryManager.getHistory(this)
-
         if (history.isNotEmpty()) {
             historyAdapter = SearchHistoryAdapter(history) { selected ->
                 binding.etSearch.setText(selected)
                 filter(selected)
             }
-
             binding.rvSearch.adapter = historyAdapter
         } else {
-            adapter.updateData(emptyList()) // kosong jika tidak ada riwayat
+            adapter.updateData(emptyList())
             binding.rvSearch.adapter = adapter
         }
     }

@@ -50,7 +50,7 @@
         private fun fetchPromos() {
             lifecycleScope.launch {
                 try {
-                    val response = AuthRepository.getAuthApi().getPromos()
+                    val response = ApiClient.authApi.getPromos()
 
                     if (response.isSuccessful) {
                         promoList.clear()

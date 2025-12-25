@@ -24,7 +24,10 @@ class FormActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFormBinding
     private var paketNama: String? = null
     private var tanggalLahirServer: String? = null
+    private var hargaPaket: Int = 0
+    private var tipePendaftaran: String = "non_sim"
 
+    private var jenisPaket: String = "manual"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,21 +35,41 @@ class FormActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Safe hide ActionBar for all Android versions
-        try { supportActionBar?.hide() } catch (_: Exception) {}
-
+        try {
+            supportActionBar?.hide()
+        } catch (_: Exception) {
+        }
         paketNama = intent.getStringExtra(EXTRA_PAKET_NAMA)
-        binding.tvPaket.text = "Paket yang dipilih: ${paketNama ?: "-"}"
+
+        if (paketNama.isNullOrBlank()) {
+            Toast.makeText(this, "Paket tidak ditemukan", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
+        hargaPaket = intent.getIntExtra("extra_harga", 0)
+
+        binding.tvPaket.text = "Paket: $paketNama"
+        tipePendaftaran = intent.getStringExtra("extra_tipe_pendaftaran") ?: "non_sim"
 
         // Safe back button
         binding.headerBar.findViewById<ImageView>(R.id.btn_back)?.setOnClickListener {
-            try { onBackPressedDispatcher.onBackPressed() } catch (_: Exception) { finish() }
+            try {
+                onBackPressedDispatcher.onBackPressed()
+            } catch (_: Exception) {
+                finish()
+            }
         }
+        jenisPaket = intent.getStringExtra("extra_jenis_paket") ?: "manual"
 
         // Disable save until confirmed
         binding.btnSimpan.isEnabled = false
         binding.cbKonfirmasi.setOnCheckedChangeListener { _, isChecked ->
-            binding.btnSimpan.isEnabled = isChecked
+            if (binding.progressBar.visibility != View.VISIBLE) {
+                binding.btnSimpan.isEnabled = isChecked
+            }
         }
+
 
         binding.etTanggalLahir.setOnClickListener { showDatePickerSafe() }
         val genderItems = listOf("Laki-laki", "Perempuan")
@@ -58,9 +81,11 @@ class FormActivity : AppCompatActivity() {
         )
 
         binding.etJenisKelamin.setAdapter(genderAdapter)
-
+        // Transmisi → mobil
+        setupMobilByPaket()
         binding.rgMetodePembayaran.setOnCheckedChangeListener { _, checkedId ->
-            binding.llOpsiKredit.visibility = if (checkedId == R.id.rb_kredit) View.VISIBLE else View.GONE
+            binding.llOpsiKredit.visibility =
+                if (checkedId == R.id.rb_kredit) View.VISIBLE else View.GONE
         }
 
         binding.btnSimpan.setOnClickListener { submitFormSafe() }
@@ -98,112 +123,109 @@ class FormActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupMobilByPaket() {
+        val mobilList = if (jenisPaket == "automatic") {
+            listOf("Nissan Livina")
+        } else {
+            listOf("Daihatsu Ayla", "Daihatsu Sigra")
+        }
+
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            mobilList
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerMobil.adapter = adapter
+        binding.spinnerMobil.isEnabled = mobilList.size > 1
+
+    }
+    private fun setLoading(isLoading: Boolean) {
+        binding.progressBar.animate().alpha(1f).setDuration(150).start()
+        binding.btnSimpan.alpha = if (isLoading) 0.7f else 1f
+        binding.btnSimpan.isEnabled = !isLoading
+        binding.btnSimpan.text =
+            if (isLoading) "" else "Simpan"
+    }
+
+
+
+
     private fun submitFormSafe() {
-        try {
-            binding.btnSimpan.isEnabled = false
-            binding.btnSimpan.text = "Mengirim..."
 
-            val namaLengkap = binding.etNamaLengkap.text.toString().trim()
-            val tempatLahir = binding.etTempatLahir.text.toString().trim()
-            val tanggalLahir = tanggalLahirServer ?: ""
-            if (tanggalLahirServer.isNullOrEmpty()) {
-                Toast.makeText(this, "Pilih tanggal lahir!", Toast.LENGTH_SHORT).show()
-                return
-            }
+        val namaLengkap = binding.etNamaLengkap.text.toString().trim()
+        val tempatLahir = binding.etTempatLahir.text.toString().trim()
+        val tanggalLahir = tanggalLahirServer ?: ""
+        val alamat = binding.etAlamat.text.toString().trim()
+        val jenisKelamin = binding.etJenisKelamin.text.toString().trim()
+        val pekerjaan = binding.etPekerjaan.text.toString().trim()
+        val mobil = binding.spinnerMobil.selectedItem?.toString() ?: ""
 
-            val alamat = binding.etAlamat.text.toString().trim()
-            val jenisKelamin = binding.etJenisKelamin.text.toString().trim()
-            val pekerjaan = binding.etPekerjaan.text.toString().trim()
+        val metode = when (binding.rgMetodePembayaran.checkedRadioButtonId) {
+            R.id.rb_transfer_bank -> "Transfer Bank"
+            R.id.rb_kredit -> "Kredit"
+            R.id.rb_tunai -> "Tunai"
+            else -> ""
+        }
 
-            val mobil = when (binding.rgPilihMobil.checkedRadioButtonId) {
-                R.id.rb_avanza -> "Toyota Avanza"
-                R.id.rb_ayla -> "Daihatsu Ayla"
-                R.id.rb_calya -> "Toyota Calya"
-                R.id.rb_brio -> "Honda Brio"
-                R.id.rb_mobilio -> "Honda Mobilio"
-                else -> ""
-            }
-
-            val metode = when (binding.rgMetodePembayaran.checkedRadioButtonId) {
-                R.id.rb_transfer_bank -> "Transfer Bank"
-                R.id.rb_kredit -> "Kredit"
-                R.id.rb_tunai -> "Tunai"
-                else -> ""
-            }
-
-            val opsiKredit = when (binding.rgOpsiKredit.checkedRadioButtonId) {
+        val opsiKredit = if (metode == "Kredit") {
+            when (binding.rgOpsiKredit.checkedRadioButtonId) {
                 R.id.rb_kredit_minggu -> "Per minggu"
                 R.id.rb_kredit_bulan -> "Per bulan"
                 R.id.rb_kredit_tahun -> "Per tahun"
                 else -> null
             }
+        } else null
 
-            if (namaLengkap.isEmpty() || tempatLahir.isEmpty() || tanggalLahir.isEmpty() ||
-                alamat.isEmpty() || jenisKelamin.isEmpty() || pekerjaan.isEmpty() ||
-                mobil.isEmpty() || metode.isEmpty() || (metode == "Kredit" && opsiKredit == null)
-            ) {
-                Toast.makeText(this, "Lengkapi semua data!", Toast.LENGTH_SHORT).show()
-                binding.btnSimpan.isEnabled = true
-                binding.btnSimpan.text = "Simpan"
-                return
-            }
-
-            val hargaMap = mapOf(
-                "Paket Manual" to 1150000,
-                "Paket Automatic" to 1250000,
-                "Paket Manual + SIM" to 2150000,
-                "Paket Automatic + SIM" to 2200000
+        if (namaLengkap.isEmpty() || tempatLahir.isEmpty() || tanggalLahir.isEmpty() ||
+            alamat.isEmpty() || jenisKelamin.isEmpty() || pekerjaan.isEmpty() ||
+            mobil.isEmpty() || metode.isEmpty()
+        ) {
+            Toast.makeText(this, "Lengkapi semua data", Toast.LENGTH_SHORT).show()
+            return
+        }
+        setLoading(true)
+        CoroutineScope(Dispatchers.IO).launch {
+            val request = FormRequest(
+                paket = paketNama!!,
+                nama_lengkap = namaLengkap,
+                tempat_lahir = tempatLahir,
+                tanggal_lahir = tanggalLahir,
+                alamat = alamat,
+                jenis_kelamin = jenisKelamin,
+                pekerjaan = pekerjaan,
+                mobil_dipilih = mobil,
+                metode_pembayaran = metode,
+                opsi_kredit = opsiKredit,
+                tipe_pendaftaran = tipePendaftaran
             )
 
-            val harga = hargaMap[paketNama] ?: 0
+            val res = AuthRepository.submitForm(this@FormActivity, request)
 
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val formRequest = FormRequest(
-                        paket = paketNama ?: "",
-                        nama_lengkap = namaLengkap,
-                        tempat_lahir = tempatLahir,
-                        tanggal_lahir = tanggalLahir,
-                        alamat = alamat,
-                        jenis_kelamin = jenisKelamin,
-                        pekerjaan = pekerjaan,
-                        mobil_dipilih = mobil,
-                        metode_pembayaran = metode,
-                        opsi_kredit = opsiKredit,
-                        harga = harga
-                    )
+            runOnUiThread {
+                setLoading(false)
+                if (res?.success == true) {
+                    val intent = Intent(this@FormActivity, PembayaranActivity::class.java)
+                    intent.putExtra("extra_pendaftaran_id", res.pendaftaran_id)
+                    intent.putExtra("extra_metode", metode)
+                    startActivity(intent)
 
-                    val res = AuthRepository.submitForm(this@FormActivity, formRequest)
 
-                    runOnUiThread {
-                        binding.btnSimpan.isEnabled = true
-                        binding.btnSimpan.text = "Simpan"
-
-                        if (res?.success == true) {
-                            Toast.makeText(this@FormActivity, "Berhasil menyimpan data!", Toast.LENGTH_LONG).show()
-                            val intent = Intent(this@FormActivity, PembayaranActivity::class.java).apply {
-                                putExtra("extra_paket", paketNama)
-                                putExtra("extra_harga", harga)
-                                putExtra("extra_metode", metode)
-                                putExtra("extra_tanggal", getCurrentDate())
-                            }
-                            startActivity(intent)
-                        } else {
-                            Toast.makeText(this@FormActivity, "Error: ${res?.message ?: "Server Error"}", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        binding.btnSimpan.isEnabled = true
-                        binding.btnSimpan.text = "Simpan"
-                        Toast.makeText(this@FormActivity, "Gagal mengirim data", Toast.LENGTH_LONG).show()
-                    }
+                } else {
+                    Toast.makeText(
+                        this@FormActivity,
+                        res?.message ?: "Server error",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-        } catch (e: Exception) {
-            binding.btnSimpan.isEnabled = true
-            binding.btnSimpan.text = "Simpan"
-            Toast.makeText(this, "Terjadi kesalahan tak terduga", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun resetButton() {
+        binding.btnSimpan.isEnabled = true
+        binding.btnSimpan.text = "Simpan"
+    }
+
 }
+

@@ -2,12 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="blue">#2D6EFF</color>
+    <color name="blue">#000f3f</color>
     <color name="orange">#f89331</color>
     <color name="purple_500">#6200EE</color>
     <color name="purple_700">#3700B3</color>
     <color name="teal_200">#03DAC5</color>
     <color name="teal_700">#018786</color>
     <color name="bottom_nav_selected">#0000FF</color> <color name="bottom_nav_unselected">#808080</color>
-
+    <color name="shimmer_placeholder">#E0E0E0</color>
 </resources>

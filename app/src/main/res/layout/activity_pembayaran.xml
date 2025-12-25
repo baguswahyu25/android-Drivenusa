@@ -2,7 +2,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="0dp"
     android:background="#F9F9F9">
 
     <LinearLayout
@@ -10,7 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- ================= HEADER BAR (BACK BUTTON) ================= -->
+        <!-- HEADER -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -20,207 +19,91 @@
                 android:id="@+id/btnBack"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_back"
-                android:layout_centerVertical="true"
-                android:contentDescription="back" />
+                android:src="@drawable/ic_arrow_back" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 android:text="Detail Pembayaran"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_centerInParent="true"
                 android:textColor="#000"/>
         </RelativeLayout>
 
-        <!-- ================= ISI PEMBAYARAN ================= -->
-
+        <!-- CONTENT -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- NAMA PAKET -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nama Paket:"
-                android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:text="Nama Paket"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/txtNamaPaketBayar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="-"
-                android:textSize="16sp"
-                android:paddingBottom="15dp"/>
+                android:text="-"/>
 
-            <!-- HARGA -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Harga Paket:"
+                android:text="Harga Paket"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:layout_marginTop="12dp"/>
 
             <TextView
                 android:id="@+id/txtHargaPaketBayar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Rp. 0"
-                android:textSize="16sp"
-                android:paddingBottom="15dp"/>
+                android:text="Rp 0"/>
 
-            <!-- METODE -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Metode Pembayaran:"
+                android:text="Metode Pembayaran"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:layout_marginTop="12dp"/>
 
             <TextView
                 android:id="@+id/txtMetodeBayar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="-"
-                android:textSize="16sp"
-                android:paddingBottom="15dp"/>
+                android:text="-"/>
 
-            <!-- TANGGAL -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tanggal Transaksi:"
+                android:text="Tanggal Transaksi"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:layout_marginTop="12dp"/>
 
             <TextView
                 android:id="@+id/txtTanggal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="-"
-                android:textSize="16sp"
-                android:paddingBottom="25dp"/>
+                android:text="-"/>
 
-            <!-- ================= TRANSFER SECTION ================= -->
-
-            <LinearLayout
-                android:id="@+id/layoutTransferInfo"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Informasi Pembayaran"
-                    android:textStyle="bold"
-                    android:textSize="19sp"
-                    android:paddingBottom="10dp"/>
-
-                <!-- BANK -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Bank:"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/txtNamaBank"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="-"
-                    android:textSize="16sp"
-                    android:paddingBottom="10dp"/>
-
-                <!-- NAMA -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Atas Nama:"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/txtPenerima"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="-"
-                    android:textSize="16sp"
-                    android:paddingBottom="10dp"/>
-
-                <!-- REKENING -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nomor Rekening:"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/txtNomorRek"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="-"
-                    android:textSize="16sp"
-                    android:paddingBottom="25dp"/>
-
-                <!-- UPLOAD -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Upload Bukti Transfer:"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-
-                <LinearLayout
-                    android:id="@+id/btnUploadBukti"
-                    android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/upload_box">
-
-                    <!-- Kotak keciiil di dalam -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/upload_box_inner"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginEnd="12dp">
-
-                        <TextView
-                            android:id="@+id/txtBukti"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="pilih file"
-                            android:textColor="#555"
-                            android:textSize="14sp"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- BTN BAYAR -->
             <Button
                 android:id="@+id/btnBayarSekarang"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/blue"
                 android:text="Bayar Sekarang"
-                android:background="@color/purple_700"
-                android:textColor="#FFF"
-                android:padding="12dp"
-                android:textSize="16sp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="30dp"/>
+                android:layout_marginTop="24dp"/>
+
+            <ProgressBar
+                android:id="@+id/progressBayar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"/>
         </LinearLayout>
-
     </LinearLayout>
-
 </ScrollView>

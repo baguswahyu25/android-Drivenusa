@@ -121,14 +121,15 @@ class LoginActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                val token = response.token
-                if (!token.isNullOrEmpty()) {
-                    UserLocal.saveToken(this@LoginActivity, token)
+                val token = response.accessToken
+                if (!response.accessToken.isNullOrEmpty()) {
+                    UserLocal.saveToken(this@LoginActivity, response.accessToken!!)
                     startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
                     finish()
                 } else {
                     showError(response.message ?: "Login gagal")
                 }
+
 
 
             } catch (e: UnknownHostException) {

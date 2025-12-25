@@ -110,7 +110,6 @@
                         android:id="@+id/tvHarga"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Rp 150.000"
                         android:textStyle="bold"
                         android:textSize="17sp"
                         android:textColor="#2D6EFF"
@@ -187,36 +186,6 @@
             <!-- ===========================
                  DOKUMEN PENDUKUNG
             ============================ -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2. dokumen pendukung"
-                android:textColor="#000"
-                android:textStyle="bold"
-                android:textSize="17sp"
-                android:layout_marginTop="16dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_check"/>
-
-                <TextView
-                    android:id="@+id/tvFile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="File : screenshot_bukti.transfer"
-                    android:textColor="#333"
-                    android:textSize="15sp"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
 
 
             <!-- ===========================
@@ -225,7 +194,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3. Status pemesanan"
+                android:text="2. Status pemesanan"
                 android:textColor="#000"
                 android:textStyle="bold"
                 android:textSize="17sp"

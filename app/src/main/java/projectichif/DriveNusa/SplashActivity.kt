@@ -12,7 +12,6 @@ import android.view.animation.BounceInterpolator
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 import projectichif.DriveNusa.api.AuthRepository
 
@@ -93,7 +92,12 @@ class SplashActivity : AppCompatActivity() {
                     val isValid = AuthRepository.checkToken(this@SplashActivity)
 
                     if (isValid) {
-                        goToHome() // 🔥 LANGSUNG MASUK HOME
+                        val user = UserLocal.getUser(this@SplashActivity)
+                        if (user != null) {
+                            // Simpan userId lokal untuk cek kepemilikan pendaftaran
+                            UserLocal.saveUser(this@SplashActivity, user)
+                        }
+                        goToHome()
                     } else {
                         UserLocal.clearSession(this@SplashActivity)
                         goToLogin()

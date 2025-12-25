@@ -61,6 +61,18 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginTop="6dp" />
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PAID"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:padding="6dp"
+                android:background="@drawable/bg_status_paid"
+                android:layout_alignParentEnd="true"/>
+
         </LinearLayout>
 
         <!-- Tanggal -->
