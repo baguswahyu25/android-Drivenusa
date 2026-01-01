@@ -10,6 +10,5 @@ data class NotificationItem(
 
 enum class NotificationType {
     PENGAJUAN_JADWAL,
-    CHAT,
     PROMO
 }

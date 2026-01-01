@@ -1,66 +1,131 @@
-package projectichif.DriveNusa
+    package projectichif.DriveNusa
 
-import android.app.Activity
-import android.content.Intent
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import projectichif.DriveNusa.databinding.ActivityPengajuanJadwalBinding
-import projectichif.DriveNusa.utils.JadwalPrefs
+    import android.app.Activity
+    import android.content.Intent
+    import android.os.Bundle
+    import androidx.appcompat.app.AppCompatActivity
+    import androidx.recyclerview.widget.LinearLayoutManager
+    import projectichif.DriveNusa.databinding.ActivityPengajuanJadwalBinding
+    import projectichif.DriveNusa.utils.JadwalPrefs
+    import androidx.lifecycle.lifecycleScope
+    import kotlinx.coroutines.launch
+    import projectichif.DriveNusa.ApiClient
+    import projectichif.DriveNusa.api.PendaftaranAktifResponse
 
-class PengajuanJadwalActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityPengajuanJadwalBinding
-    private lateinit var adapter: PertemuanAdapter
-    private val pertemuanList = mutableListOf<PertemuanModel>()
+    class PengajuanJadwalActivity : AppCompatActivity() {
 
-    companion object {
-        const val REQ_PENGAJUAN = 2001
-    }
+        private lateinit var binding: ActivityPengajuanJadwalBinding
+        private lateinit var adapter: PertemuanAdapter
+        private val pertemuanList = mutableListOf<PertemuanModel>()
+        private var pendaftaranId: Int = 0
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityPengajuanJadwalBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        binding.btnBack.setOnClickListener { finish() }
-
-        // Ambil status dari SharedPreferences
-        val savedStatus = JadwalPrefs.getStatusList(this)
-
-        // Buat 14 pertemuan
-        for (i in 0 until 14) {
-            pertemuanList.add(
-                PertemuanModel("Pertemuan ${i + 1}", savedStatus[i])
-            )
+        private val api by lazy {
+            ApiClient.authApi
         }
 
-        adapter = PertemuanAdapter(pertemuanList) { posisi, nama ->
-            openForm(posisi, nama)
+
+        companion object {
+            const val REQ_PENGAJUAN = 2001
         }
 
-        binding.rvPertemuan.layoutManager = LinearLayoutManager(this)
-        binding.rvPertemuan.adapter = adapter
-    }
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            binding = ActivityPengajuanJadwalBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-    private fun openForm(posisi: Int, nama: String) {
-        val intent = Intent(this, FormPengajuanActivity::class.java)
-        intent.putExtra("pertemuan_index", posisi)
-        intent.putExtra("pertemuan_nama", nama)
-        startActivityForResult(intent, REQ_PENGAJUAN)
-    }
+            binding.btnBack.setOnClickListener { finish() }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+            // Ambil status dari SharedPreferences
+            val savedStatus = JadwalPrefs.getStatusList(this)
 
-        if (requestCode == REQ_PENGAJUAN && resultCode == Activity.RESULT_OK) {
-            val posisi = data?.getIntExtra("pertemuan_index", -1) ?: return
+            // Buat 14 pertemuan
+            for (i in 0 until 14) {
+                pertemuanList.add(
+                    PertemuanModel("Pertemuan ${i + 1}", savedStatus[i])
+                )
+            }
+            pendaftaranId = intent.getIntExtra("pendaftaran_id", 0)
 
-            // Simpan status diproses (1)
-            JadwalPrefs.saveStatus(this, posisi, 1)
+            if (pendaftaranId == 0) {
+                finish()
+                return
+            }
+            lifecycleScope.launch {
 
-            // Update tampilan list
-            adapter.updateStatus(posisi, 1)
+                val response = api.getPendaftaranAktif()
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        renderProgress(it)
+                    }
+                }
+            }
+
+            lifecycleScope.launch {
+                try {
+                    val response = api.getJadwal(pendaftaranId)
+                    if (response.isSuccessful) {
+                        val body = response.body()
+
+                        body?.jadwal?.forEach {
+                            val index = it.pertemuan_ke - 1
+                            if (index in 0..13) {
+                                JadwalPrefs.saveStatus(
+                                    this@PengajuanJadwalActivity,
+                                    index,
+                                    if (it.status == "selesai") 2 else 1
+                                )
+                            }
+                        }
+
+                        adapter.notifyDataSetChanged()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+
+            adapter = PertemuanAdapter(pertemuanList) { posisi, nama ->
+                openForm(posisi, nama)
+            }
+
+            binding.rvPertemuan.layoutManager = LinearLayoutManager(this)
+            binding.rvPertemuan.adapter = adapter
+        }
+
+        private fun openForm(posisi: Int, nama: String) {
+            val intent = Intent(this, FormPengajuanActivity::class.java)
+            intent.putExtra("pendaftaran_id", pendaftaranId)
+            intent.putExtra("pertemuan_ke", posisi + 1)
+            intent.putExtra("pertemuan_nama", nama)
+            startActivityForResult(intent, REQ_PENGAJUAN)
+        }
+
+        private fun renderProgress(pendaftaran: PendaftaranAktifResponse) {
+            val total = pendaftaran.totalPertemuan ?: 0
+            val sisa = pendaftaran.sisaPertemuan ?: 0
+            val selesai = total - sisa
+
+            binding.progressPertemuan.max = total
+            binding.progressPertemuan.progress = selesai
+
+            binding.txtProgress.text =
+                "$selesai / $total Pertemuan"
+        }
+
+
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            super.onActivityResult(requestCode, resultCode, data)
+
+            if (requestCode == REQ_PENGAJUAN && resultCode == Activity.RESULT_OK) {
+                val posisi = data?.getIntExtra("pertemuan_index", -1) ?: return
+
+                // Simpan status diproses (1)
+                JadwalPrefs.saveStatus(this, posisi, 1)
+
+                // Update tampilan list
+                adapter.updateStatus(posisi, 1)
+            }
         }
     }
-}

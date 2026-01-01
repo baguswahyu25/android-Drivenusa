@@ -65,9 +65,7 @@ class FormActivity : AppCompatActivity() {
         // Disable save until confirmed
         binding.btnSimpan.isEnabled = false
         binding.cbKonfirmasi.setOnCheckedChangeListener { _, isChecked ->
-            if (binding.progressBar.visibility != View.VISIBLE) {
                 binding.btnSimpan.isEnabled = isChecked
-            }
         }
 
 
@@ -83,10 +81,7 @@ class FormActivity : AppCompatActivity() {
         binding.etJenisKelamin.setAdapter(genderAdapter)
         // Transmisi → mobil
         setupMobilByPaket()
-        binding.rgMetodePembayaran.setOnCheckedChangeListener { _, checkedId ->
-            binding.llOpsiKredit.visibility =
-                if (checkedId == R.id.rb_kredit) View.VISIBLE else View.GONE
-        }
+
 
         binding.btnSimpan.setOnClickListener { submitFormSafe() }
     }
@@ -141,11 +136,11 @@ class FormActivity : AppCompatActivity() {
 
     }
     private fun setLoading(isLoading: Boolean) {
-        binding.progressBar.animate().alpha(1f).setDuration(150).start()
-        binding.btnSimpan.alpha = if (isLoading) 0.7f else 1f
+        binding.loadingOverlay.visibility =
+            if (isLoading) View.VISIBLE else View.GONE
+
         binding.btnSimpan.isEnabled = !isLoading
-        binding.btnSimpan.text =
-            if (isLoading) "" else "Simpan"
+        binding.btnSimpan.alpha = if (isLoading) 0.7f else 1f
     }
 
 
@@ -168,15 +163,6 @@ class FormActivity : AppCompatActivity() {
             else -> ""
         }
 
-        val opsiKredit = if (metode == "Kredit") {
-            when (binding.rgOpsiKredit.checkedRadioButtonId) {
-                R.id.rb_kredit_minggu -> "Per minggu"
-                R.id.rb_kredit_bulan -> "Per bulan"
-                R.id.rb_kredit_tahun -> "Per tahun"
-                else -> null
-            }
-        } else null
-
         if (namaLengkap.isEmpty() || tempatLahir.isEmpty() || tanggalLahir.isEmpty() ||
             alamat.isEmpty() || jenisKelamin.isEmpty() || pekerjaan.isEmpty() ||
             mobil.isEmpty() || metode.isEmpty()
@@ -196,7 +182,6 @@ class FormActivity : AppCompatActivity() {
                 pekerjaan = pekerjaan,
                 mobil_dipilih = mobil,
                 metode_pembayaran = metode,
-                opsi_kredit = opsiKredit,
                 tipe_pendaftaran = tipePendaftaran
             )
 
@@ -204,13 +189,13 @@ class FormActivity : AppCompatActivity() {
 
             runOnUiThread {
                 setLoading(false)
+
                 if (res?.success == true) {
                     val intent = Intent(this@FormActivity, PembayaranActivity::class.java)
                     intent.putExtra("extra_pendaftaran_id", res.pendaftaran_id)
                     intent.putExtra("extra_metode", metode)
+                    intent.putExtra("extra_transaction_id", res.transaction_id)
                     startActivity(intent)
-
-
                 } else {
                     Toast.makeText(
                         this@FormActivity,

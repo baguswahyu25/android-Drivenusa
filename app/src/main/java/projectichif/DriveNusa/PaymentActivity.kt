@@ -34,5 +34,7 @@ class PaymentActivity : AppCompatActivity() {
             paymentLauncher,
             snapToken
         )
+
     }
+
 }

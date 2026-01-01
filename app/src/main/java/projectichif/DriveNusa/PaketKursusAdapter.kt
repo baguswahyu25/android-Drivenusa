@@ -32,6 +32,7 @@ class PaketKursusAdapter(
             // Load image dari URL Laravel storage
             Glide.with(binding.imgPaketMobil.context)
                 .load(paket.image)
+                .centerCrop()
                 .apply(RequestOptions().placeholder(R.drawable.img_placeholder))
                 .into(binding.imgPaketMobil)
 

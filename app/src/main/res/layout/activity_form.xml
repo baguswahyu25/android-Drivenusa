@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FormActivity">
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -312,61 +316,6 @@
                     />
             </RadioGroup>
 
-            <LinearLayout
-                android:id="@+id/ll_opsi_kredit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="4. kredit"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/rg_opsi_kredit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    android:focusable="true"
-                    >
-
-                    <RadioButton
-                        android:id="@+id/rb_kredit_minggu"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Per minggu"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        />
-
-                    <RadioButton
-                        android:id="@+id/rb_kredit_bulan"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Per bulan"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        />
-
-                    <RadioButton
-                        android:id="@+id/rb_kredit_tahun"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Per tahun"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        />
-                </RadioGroup>
-            </LinearLayout>
-
 
             <View
                 android:layout_width="match_parent"
@@ -392,27 +341,48 @@
                 android:text="Pastikan data diri anda sudah terisi dengan benar"
                 android:textColor="@color/black" />
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp">
-
                 <Button
                     android:id="@+id/btnSimpan"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Simpan" />
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    android:indeterminate="true"/>
-            </FrameLayout>
-
-
+                    android:text="Simpan"
+                    android:backgroundTint="@color/blue"/>
 
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
+    <!-- ================= LOADING OVERLAY ================= -->
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_loading_box"
+            android:elevation="8dp"
+            android:padding="16dp">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Memproses..."
+                android:textSize="12sp"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+    </FrameLayout>
+</FrameLayout>

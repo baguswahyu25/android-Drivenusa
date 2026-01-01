@@ -16,11 +16,15 @@ data class PromoItem(
     val description: String?,
 
     @SerializedName("image_url")
-    val imageUrl: String?,
+    val imageUrl: String?,   // ✅ GANTI
 
     @SerializedName("expired_at")
     val expiredAt: String?
 )
+
+object PromoCache {
+    var promos: List<PromoItem>? = null
+}
 
 
 

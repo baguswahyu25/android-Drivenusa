@@ -69,9 +69,11 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
-                android:padding="6dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
                 android:background="@drawable/bg_status_paid"
-                android:layout_alignParentEnd="true"/>
+                android:layout_marginTop="6dp"/>
+
 
         </LinearLayout>
 

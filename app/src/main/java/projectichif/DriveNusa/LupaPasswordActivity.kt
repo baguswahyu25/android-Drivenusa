@@ -2,6 +2,7 @@ package projectichif.DriveNusa
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -36,20 +37,26 @@ class LupaPasswordActivity : AppCompatActivity() {
 
             if (email.isEmpty()) {
                 etEmail.error = "Email wajib diisi"
-                etEmail.requestFocus()
                 return@setOnClickListener
             }
+
+            showLoading(true)
 
             CoroutineScope(Dispatchers.IO).launch {
                 val response = AuthRepository.forgotPassword(email)
 
                 withContext(Dispatchers.Main) {
-                    if (response != null && (response.success == true || response.status == true)) {
-                        Toast.makeText(
-                            this@LupaPasswordActivity,
-                            "Link reset password telah dikirim ke email.",
-                            Toast.LENGTH_LONG
-                        ).show()
+                    showLoading(false)
+
+                    if (response?.success == true) {
+                        val intent = Intent(this@LupaPasswordActivity, VerificationActivity::class.java)
+                        intent.putExtra(VerificationActivity.EXTRA_EMAIL, email)
+                        intent.putExtra(
+                            VerificationActivity.EXTRA_TYPE,
+                            VerificationActivity.TYPE_RESET_PASSWORD
+                        )
+                        startActivity(intent)
+                        finish()
                     } else {
                         Toast.makeText(
                             this@LupaPasswordActivity,
@@ -61,6 +68,7 @@ class LupaPasswordActivity : AppCompatActivity() {
             }
         }
 
+
         // 🔹 Tombol kembali ke halaman login
         btnKembaliLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
@@ -68,4 +76,9 @@ class LupaPasswordActivity : AppCompatActivity() {
             finish() // Menutup halaman lupa password agar tidak bisa kembali
         }
     }
+    private fun showLoading(show: Boolean) {
+        findViewById<View>(R.id.loadingOverlay).visibility =
+            if (show) View.VISIBLE else View.GONE
+    }
+
 }

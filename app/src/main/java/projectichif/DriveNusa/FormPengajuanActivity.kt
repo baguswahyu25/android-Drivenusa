@@ -3,12 +3,18 @@ package projectichif.DriveNusa
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import projectichif.DriveNusa.databinding.ActivityFormPengajuanBinding
+import projectichif.DriveNusa.api.AuthRepository
+import projectichif.DriveNusa.api.JadwalRequest
+import projectichif.DriveNusa.api.PendaftaranAktifResponse
 import java.util.Calendar
 
 class FormPengajuanActivity : AppCompatActivity() {
@@ -16,39 +22,36 @@ class FormPengajuanActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFormPengajuanBinding
     private var selectedTanggal: String? = null
     private var selectedJam: String? = null
+    private var pendaftaranId: Int = -1
+    private var pembayaranSuccess = false
+    private var pendaftaranAktif: PendaftaranAktifResponse? = null
 
-    // JAM LATIHAN YANG TERSEDIA
+    private val api by lazy { ApiClient.authApi }
+
     private val listJam = listOf(
-        "08:00",
-        "09:00",
-        "10:00",
-        "11:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00"
+        "08:00","09:00","10:00","11:00",
+        "13:00","14:00","15:00","16:00"
     )
 
-    // Contoh DATA JAM YANG SUDAH DIPAKAI → harusnya dari API
-    // Key = tanggal, Value = list jam yang sudah dipakai
-    private val jamDipakai = hashMapOf(
-        "2025-11-23" to listOf("09:00", "14:00") // contoh
-    )
+    private val jamDipakai = hashMapOf<String, List<String>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFormPengajuanBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.layoutJam.visibility = View.GONE
 
-        val namaPertemuan = intent.getStringExtra("pertemuan_nama")
-        binding.txtPertemuan.text = namaPertemuan ?: "-"
+        binding.txtPertemuan.text =
+            intent.getStringExtra("pertemuan_nama") ?: "-"
 
         setupTanggalPicker()
-        renderJamButtons()
 
         binding.btnAjukan.setOnClickListener {
             ajukanJadwal()
         }
+
+        // Cek pembayaran & pendaftaran aktif
+        cekStatusPembayaran()
     }
 
     // ============================
@@ -57,45 +60,80 @@ class FormPengajuanActivity : AppCompatActivity() {
     private fun setupTanggalPicker() {
         binding.btnTanggal.setOnClickListener {
             val c = Calendar.getInstance()
-            val year = c.get(Calendar.YEAR)
-            val month = c.get(Calendar.MONTH)
-            val day = c.get(Calendar.DAY_OF_MONTH)
-
-            val dp = DatePickerDialog(this, { _, y, m, d ->
-                selectedTanggal = String.format("%04d-%02d-%02d", y, m + 1, d)
-                binding.btnTanggal.text = selectedTanggal
-                renderJamButtons() // update jam setelah tanggal berubah
-            }, year, month, day)
-
-            dp.show()
+            DatePickerDialog(
+                this,
+                { _, y, m, d ->
+                    selectedTanggal = String.format("%04d-%02d-%02d", y, m + 1, d)
+                    binding.btnTanggal.text = selectedTanggal
+                    loadJamDipakai(selectedTanggal!!)
+                },
+                c.get(Calendar.YEAR),
+                c.get(Calendar.MONTH),
+                c.get(Calendar.DAY_OF_MONTH)
+            ).show()
         }
     }
 
     // ============================
-    // TAMPILKAN JAM
+    // LOAD JAM DARI API
+    // ============================
+    private fun loadJamDipakai(tanggal: String) {
+
+        showJamShimmer(true) // 🔥 SHIMMER MULAI
+
+        lifecycleScope.launch {
+            try {
+                val response = api.jamDipakai(tanggal)
+
+                showJamShimmer(false) // 🔥 SHIMMER SELESAI
+
+                if (response.isSuccessful) {
+                    jamDipakai[tanggal] =
+                        response.body()?.jam_dipakai ?: emptyList()
+                    renderJamButtons()
+                } else {
+                    Toast.makeText(
+                        this@FormPengajuanActivity,
+                        "Gagal load jam",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+            } catch (e: Exception) {
+                showJamShimmer(false)
+                Toast.makeText(
+                    this@FormPengajuanActivity,
+                    "Error koneksi",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+
+    // ============================
+    // RENDER JAM
     // ============================
     private fun renderJamButtons() {
         binding.layoutJam.removeAllViews()
-
-        val used = jamDipakai[selectedTanggal] ?: listOf()
+        val used = selectedTanggal?.let { jamDipakai[it] } ?: emptyList()
 
         listJam.forEach { jam ->
-
             val btn = Button(this)
             btn.text = jam
-            btn.setPadding(20, 20, 20, 20)
-
-            // style normal
-            btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.purple_500)
             btn.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+            btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.purple_500)
 
-            // Jika jam sudah dipakai → disable
             if (used.contains(jam)) {
                 btn.isEnabled = false
                 btn.backgroundTintList = ContextCompat.getColorStateList(this, android.R.color.darker_gray)
             }
 
             btn.setOnClickListener {
+                if (!pembayaranSuccess) {
+                    Toast.makeText(this, "Selesaikan pembayaran terlebih dahulu", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 selectedJam = jam
                 resetAllJamButtons()
                 btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.purple_700)
@@ -112,32 +150,144 @@ class FormPengajuanActivity : AppCompatActivity() {
         }
     }
 
+    private fun disableSemuaJam() {
+        binding.layoutJam.removeAllViews()
+        listJam.forEach { jam ->
+            val btn = Button(this)
+            btn.text = jam
+            btn.isEnabled = false
+            btn.backgroundTintList = ContextCompat.getColorStateList(this, android.R.color.darker_gray)
+            binding.layoutJam.addView(btn)
+        }
+    }
+    private fun showJamShimmer(show: Boolean) {
+        if (show) {
+            binding.shimmerJam.visibility = View.VISIBLE
+            binding.shimmerJam.startShimmer()
+            binding.layoutJam.visibility = View.GONE
+        } else {
+            binding.shimmerJam.stopShimmer()
+            binding.shimmerJam.visibility = View.GONE
+            binding.layoutJam.visibility = View.VISIBLE
+        }
+    }
+
     // ============================
-    // KIRIM PENGAJUAN
+    // CEK STATUS PEMBAYARAN
+    // ============================
+    // ============================
+// CEK STATUS PEMBAYARAN
+// ============================
+    private fun cekStatusPembayaran() {
+        binding.btnAjukan.isEnabled = false // default disabled
+
+        lifecycleScope.launch {
+            try {
+                val valid = AuthRepository.checkToken(this@FormPengajuanActivity)
+                if (!valid) {
+                    Toast.makeText(this@FormPengajuanActivity, "Sesi berakhir, silakan login ulang", Toast.LENGTH_LONG).show()
+                    finish()
+                    return@launch
+                }
+
+                val response = api.getPendaftaranAktif()
+                if (response.isSuccessful) {
+                    pendaftaranAktif = response.body()
+                    Log.d("FormPengajuan", "Response aktif: $pendaftaranAktif")
+
+                    if (pendaftaranAktif == null) {
+                        Toast.makeText(this@FormPengajuanActivity, "Tidak ada pendaftaran aktif", Toast.LENGTH_SHORT).show()
+                        return@launch
+                    }
+
+                    pendaftaranId = pendaftaranAktif!!.id
+
+                    // 🔥 Periksa status transaksi sesuai enum Midtrans
+                    val status = pendaftaranAktif?.transaction?.transaction_status?.lowercase()
+                    pembayaranSuccess = status in listOf("paid", "settlement", "capture")
+
+
+                    Log.d("FormPengajuan", "pembayaranSuccess: $pembayaranSuccess (status: $status)")
+
+                    if (!pembayaranSuccess) {
+                        disableSemuaJam()
+                        tampilkanInfoPembayaran()
+                    } else {
+                        binding.btnAjukan.isEnabled = true
+                        renderJamButtons()
+                    }
+
+                } else {
+                    Toast.makeText(this@FormPengajuanActivity, "Gagal mengambil status pendaftaran", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@FormPengajuanActivity, "Error koneksi", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    private fun tampilkanInfoPembayaran() {
+        binding.btnBayar.visibility = View.VISIBLE
+        binding.btnBayar.setOnClickListener {
+            redirectKePembayaran()
+        }
+        Toast.makeText(this, "Selesaikan pembayaran untuk memilih jadwal", Toast.LENGTH_LONG).show()
+    }
+
+    private fun redirectKePembayaran() {
+        val intent = Intent(this, PaymentActivity::class.java)
+        intent.putExtra("pendaftaran_id", pendaftaranAktif!!.id)
+        startActivity(intent)
+    }
+
+    // ============================
+    // AJUKAN JADWAL
     // ============================
     private fun ajukanJadwal() {
-        if (selectedTanggal == null) {
-            Toast.makeText(this, "Pilih tanggal dulu!", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (selectedJam == null) {
-            Toast.makeText(this, "Pilih jam dulu!", Toast.LENGTH_SHORT).show()
+        if (selectedTanggal == null || selectedJam == null) {
+            Toast.makeText(this, "Pilih tanggal & jam", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // TODO: KIRIM KE API
-        // ======================
-        // Kirim data:
-        // - Pertemuan
-        // - tanggal
-        // - jam
-        // ======================
+        val pertemuanKe = intent.getIntExtra("pertemuan_ke", -1)
 
-        Toast.makeText(this, "Pengajuan terkirim!", Toast.LENGTH_LONG).show()
-        val result = Intent()
-        result.putExtra("pertemuan_index", intent.getIntExtra("pertemuan_index", -1))
-        setResult(RESULT_OK, result)
-        finish()
+        lifecycleScope.launch {
+            if (!pembayaranSuccess) {
+                Toast.makeText(this@FormPengajuanActivity, "Selesaikan pembayaran terlebih dahulu", Toast.LENGTH_LONG).show()
+                return@launch
+            }
 
+            try {
+                val response = api.ajukanJadwal(
+                    JadwalRequest(
+                        pendaftaran_id = pendaftaranId,
+                        pertemuan_ke = pertemuanKe,
+                        tanggal = selectedTanggal!!,
+                        jam = selectedJam!!
+                    )
+                )
+
+                if (response.isSuccessful) {
+                    Toast.makeText(this@FormPengajuanActivity, "Pengajuan berhasil", Toast.LENGTH_LONG).show()
+                    setResult(RESULT_OK)
+                    finish()
+                } else {
+                    val code = response.code()
+                    val msg = when (code) {
+                        403 -> "Pembayaran belum selesai"
+                        409 -> "Jam sudah dipakai"
+                        422 -> "Data jadwal tidak valid"
+                        else -> "Gagal mengajukan jadwal"
+                    }
+                    Toast.makeText(this@FormPengajuanActivity, msg, Toast.LENGTH_LONG).show()
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(this@FormPengajuanActivity, "Error koneksi", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+            }
+        }
     }
 }

@@ -41,13 +41,6 @@ class NotificationFragment : Fragment(), NotificationClickListener {
                 type = NotificationType.PENGAJUAN_JADWAL
             ),
             NotificationItem(
-                iconResId = R.drawable.ic_chat,
-                title = "Chat",
-                subtitle = "ada chat terbaru",
-                type = NotificationType.CHAT,
-                payload = "" // nama sender
-            ),
-            NotificationItem(
                 iconResId = R.drawable.ic_discount,
                 title = "Promo Terbaru",
                 subtitle = "Cek promo menarik hari ini",
@@ -65,14 +58,6 @@ class NotificationFragment : Fragment(), NotificationClickListener {
                 val intent = Intent(requireContext(), PengajuanJadwalActivity::class.java)
                 startActivity(intent)
             }
-            NotificationType.CHAT -> {
-                val chatListFragment = ChatListFragment()
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, chatListFragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
-
             NotificationType.PROMO -> {
                 val intent = Intent(requireContext(), PromoActivity::class.java)
                 intent.putExtra("FROM_NOTIF", true)

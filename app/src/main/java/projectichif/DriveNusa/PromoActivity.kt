@@ -48,28 +48,46 @@
             startActivity(intent)
         }
         private fun fetchPromos() {
+
+            // 🔥 JIKA SUDAH ADA CACHE → LANGSUNG PAKAI
+            PromoCache.promos?.let { cached ->
+                promoAdapter.submitData(cached)
+
+                if (fromNotif && notifPromoId != -1) {
+                    cached.find { it.id == notifPromoId }?.let {
+                        openPromoDetail(it)
+                        fromNotif = false
+                    }
+                }
+                return
+            }
+
+            // 🔄 JIKA BELUM ADA → LOAD API SEKALI
             lifecycleScope.launch {
                 try {
                     val response = ApiClient.authApi.getPromos()
-
                     if (response.isSuccessful) {
-                        promoList.clear()
-                        promoList.addAll(response.body() ?: emptyList())
+                        val data = response.body() ?: emptyList()
 
-                        // 🔥 AUTO OPEN DARI NOTIF
+                        PromoCache.promos = data // ✅ SIMPAN CACHE
+                        promoAdapter.submitData(data)
+
                         if (fromNotif && notifPromoId != -1) {
-                            val promo = promoList.find { it.id == notifPromoId }
-                            promo?.let {
+                            data.find { it.id == notifPromoId }?.let {
                                 openPromoDetail(it)
-                                fromNotif = false // cegah kebuka ulang
+                                fromNotif = false
                             }
                         }
+                    } else {
+                        promoAdapter.submitData(emptyList())
                     }
-                } finally {
-                    promoAdapter.hideLoading()
+                } catch (e: Exception) {
+                    promoAdapter.submitData(emptyList())
                 }
             }
         }
+
+
     }
 
 

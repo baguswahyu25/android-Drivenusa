@@ -25,6 +25,35 @@
                 @SerializedName("profile_photo_url") val profilePhotoUrl: String? = null,
                 @SerializedName("email_verified_at") val emailVerifiedAt: String? = null,
             )
+            data class PendaftaranAktifResponse(
+                val id: Int,
+
+                @SerializedName("status_pendaftaran")
+                val statusPendaftaran: String? = null,
+
+                @SerializedName("sisa_pertemuan")
+                val sisaPertemuan: Int? = null,
+
+                @SerializedName("total_pertemuan")
+                val totalPertemuan: Int? = null,
+
+                val transaction: TransactionData? = null
+            )
+
+            data class TransactionData(
+                val transaction_status: String?
+            )
+            data class CicilanItem(
+                val id: Int,
+                val label: String,
+                val amount: Int,
+                val status: String,
+                val tanggal: String?
+            )
+            data class RiwayatCicilanResponse(
+                val status_pembayaran: String,
+                val items: List<CicilanItem>
+            )
 
 
 
@@ -43,12 +72,8 @@
             )
 
             data class UpdateProfileResponse(
-                @SerializedName("status") val status: Boolean,
+                @SerializedName("success") val success: Boolean,
                 @SerializedName("message") val message: String,
-                @SerializedName("data") val data: UpdateProfileData?
-            )
-
-            data class UpdateProfileData(
                 @SerializedName("user") val user: UserData
             )
             data class PendaftaranDetailResponse(
@@ -148,23 +173,63 @@
                 val amount: Int
             )
             data class SnapRequest(
-                val pendaftaran_id: Int,
+                val transaction_id: Int,
                 val metode: String
             )
+
             data class PaymentStatusResponse(
                 val status: String,
                 val paket_nama: String?,
                 val metode: String?,
                 val total: Int?
             )
+            data class NextTransactionResponse(
+                val transaction_id: Int,
+                val type: String,
+                val amount: Int,
+                val cicilan_ke: Int?,
+                val total_cicilan: Int?
+            )
 
+
+            data class JadwalItem(
+                val id: Int,
+                val pertemuan_ke: Int,
+                val tanggal: String,
+                val jam: String,
+                val status: String
+            )
+
+            data class JadwalRequest(
+                val pendaftaran_id: Int,
+                val pertemuan_ke: Int,
+                val tanggal: String,
+                val jam: String
+            )
+
+            data class JadwalResponse(
+                val pendaftaran_id: Int,
+                val total_pertemuan: Int,
+                val sisa_pertemuan: Int,
+                val jadwal: List<JadwalItem>
+            )
+
+            data class JamDipakaiResponse(
+                val tanggal: String,
+                val jam_dipakai: List<String>
+            )
+
+            data class VerifiedResponse(
+                val verified: Boolean
+            )
 
 
             data class FormSubmitResponse(
                 val success: Boolean,
                 val message: String?,
                 val data: Any? = null,
-                val pendaftaran_id: Int? = null   // ✅ FIX UTAMA
+                val pendaftaran_id: Int? = null,
+                val transaction_id: Int? = null,// ✅ FIX UTAMA
             )
 
 
@@ -213,7 +278,7 @@
                     if (u != null) {
                         val safeUrl = u.profilePhotoUrl
                             ?.takeIf { it.isNotBlank() }
-                            ?.let { if (it.startsWith("http")) it else "${ApiClient.BASE_IMAGE_URL}/$it" }
+                            ?.let { if (it.startsWith("https")) it else "${ApiClient.BASE_IMAGE_URL}/$it" }
 
                         return u.copy(profilePhotoUrl = safeUrl)
                     }
@@ -224,12 +289,20 @@
 
             }
             fun PaketKursusResponse.toPaketKursus(): PaketKursus {
+                val imageUrl =
+                    if (image.startsWith("https")) {
+                        image
+                    } else {
+                        "${ApiClient.BASE_IMAGE_URL}/$image"
+                    }
+
                 return PaketKursus(
-                    nama = this.nama,             // ← sesuaikan dengan field yang ada
-                    harga = "Rp ${this.harga}",   // ← sesuaikan dengan field yang ada
-                    image = this.image
+                    nama = nama,
+                    harga = "Rp ${harga}",
+                    image = imageUrl
                 )
             }
+
             class AuthInterceptor(private val tokenProvider: () -> String?) : Interceptor {
                 override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
                     val builder = chain.request().newBuilder()
@@ -274,7 +347,6 @@
 
                 @POST("email/resend")
                 suspend fun sendVerificationEmail(): Response<AuthResponse>
-
                 @POST("forgot-password")
                 suspend fun forgotPassword(@Body data: Map<String, String>): Response<AuthResponse>
 
@@ -327,6 +399,40 @@
                     @Path("id") id: Int
                 ): Response<PendaftaranDetailResponse>
 
+                @GET("v1/jadwal-pertemuan/{pendaftaran_id}")
+                suspend fun getJadwal(
+                    @Path("pendaftaran_id") pendaftaranId: Int
+                ): Response<JadwalResponse>
+
+                @POST("v1/jadwal")
+                suspend fun ajukanJadwal(
+                    @Body body: JadwalRequest
+                ): Response<ResponseBody>
+
+                @POST("v1/jadwal-pertemuan/{id}/selesai")
+                suspend fun selesai(
+                    @Path("id") id: Int
+                ): Response<ResponseBody>
+
+                @GET("v1/jadwal-pertemuan/jam-dipakai")
+                suspend fun jamDipakai(
+                    @Query("tanggal") tanggal: String
+                ): Response<JamDipakaiResponse>
+                @GET("v1/pendaftaran/aktif")
+                suspend fun getPendaftaranAktif(): Response<PendaftaranAktifResponse>
+
+                @GET("v1/transaction/next/{pendaftaran_id}")
+                suspend fun getNextTransaction(
+                    @Path("pendaftaran_id") id: Int
+                ): Response<NextTransactionResponse>
+                @GET("v1/pendaftaran/{id}/cicilan")
+                suspend fun getRiwayatCicilan(
+                    @Path("id") pendaftaranId: Int
+                ): Response<RiwayatCicilanResponse>
+                @POST("payment/retry/{id}")
+                fun retryPayment(
+                    @Path("id") transactionId: Int
+                ): Response<SnapResponse>
 
             }
 

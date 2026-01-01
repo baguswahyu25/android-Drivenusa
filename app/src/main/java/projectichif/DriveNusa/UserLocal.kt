@@ -38,11 +38,13 @@ object UserLocal {
 
     // ================= USER =================
     fun saveUser(context: Context, user: UserData) {
+        if (user.id == null) return // ⛔ cegah user rusak
         prefs(context).edit()
             .putString(KEY_USER, gson.toJson(user))
-            .putInt(KEY_USER_ID, user.id ?: 0)
+            .putInt(KEY_USER_ID, user.id)
             .apply()
     }
+
 
     fun getUser(context: Context): UserData? =
         prefs(context).getString(KEY_USER, null)

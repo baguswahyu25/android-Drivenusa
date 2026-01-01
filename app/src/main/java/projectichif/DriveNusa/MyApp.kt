@@ -19,7 +19,7 @@ class MyApp : Application() {
         SdkUIFlowBuilder.init()
             .setContext(this)
             .setClientKey("SB-Mid-client-fuWmq4VZw_-zFpm0 ")
-            .setMerchantBaseUrl("http://192.168.1.7:8000/")
+            .setMerchantBaseUrl("https://driveenusa.com/")
             .enableLog(true)
             .buildSDK()
     }

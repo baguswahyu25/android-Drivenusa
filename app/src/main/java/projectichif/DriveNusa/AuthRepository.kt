@@ -25,15 +25,25 @@ import projectichif.DriveNusa.ApiClient
 import retrofit2.Response
 import projectichif.DriveNusa.api.BotRequest
 import projectichif.DriveNusa.api.BotResponse
+import java.io.FileOutputStream
 import kotlin.coroutines.cancellation.CancellationException
 
 
 object AuthRepository {
 
-    private val api = ApiClient.authApi
+    private fun publicApi(): AuthApi {
+        return ApiClient.publicAuthApi
+    }
+
+    private fun api(): AuthApi {
+        return ApiClient.authApi
+    }
+
+
 
     // REGISTER
     suspend fun registerUser(
+        context: Context,
         name: String,
         email: String,
         password: String
@@ -46,18 +56,28 @@ object AuthRepository {
             password_confirmation = password
         )
 
-        val res = api.register(body)
+        val res = publicApi().register(body)
 
-        return if (res.isSuccessful) {
-            res.body()
-        } else {
-            AuthResponse(
-                success = false,
-                message = res.errorBody()?.string()
-            )
+
+        if (res.isSuccessful) {
+            val response = res.body()
+
+            response?.accessToken?.let { token ->
+                UserLocal.saveToken(context, token)   // ✅ WAJIB
+            }
+
+            response?.getUserModel()?.let { user ->
+                UserLocal.saveUser(context, user)
+            }
+
+            return response
         }
-    }
 
+        return AuthResponse(
+            success = false,
+            message = res.errorBody()?.string()
+        )
+    }
 
     // LOGINa
     suspend fun loginUser(
@@ -66,15 +86,22 @@ object AuthRepository {
         password: String
     ): AuthResponse? {
 
-        val res = api.loginUser(
+        val res = publicApi().loginUser(
             mapOf("email" to email, "password" to password)
         )
+
 
         if (res.isSuccessful) {
             val body = res.body()
 
             body?.let {
+                val oldUserId = UserLocal.getUser(context)?.id
+
                 UserLocal.clearSession(context)
+
+                oldUserId?.let {
+                    UserLocal.clearProfilePhoto(context, it)
+                }
 
                 it.accessToken?.let { token ->
                     UserLocal.saveToken(context, token)
@@ -82,7 +109,12 @@ object AuthRepository {
 
                 it.getUserModel()?.let { user ->
                     UserLocal.saveUser(context, user)
+
+                    user.profilePhotoUrl?.let { url ->
+                        saveProfilePhotoFromUrl(context, url, user.id!!)
+                    }
                 }
+
             }
 
 
@@ -91,12 +123,31 @@ object AuthRepository {
 
         return AuthResponse(message = res.errorBody()?.string())
     }
+    suspend fun saveProfilePhotoFromUrl(
+        context: Context,
+        url: String,
+        userId: Int
+    ) = withContext(Dispatchers.IO) {
+        try {
+            val input = java.net.URL(url).openStream()
+            val file = File(context.filesDir, "profile_photo_$userId.jpg")
+            FileOutputStream(file).use { input.copyTo(it) }
+
+            context.getSharedPreferences("user_pref", Context.MODE_PRIVATE)
+                .edit()
+                .putString("profile_photo_local_$userId", file.absolutePath)
+                .apply()
+
+        } catch (e: Exception) {
+            Log.e("PHOTO_SYNC", "Gagal sync foto: ${e.message}")
+        }
+    }
 
 
     // SEND VERIFICATION EMAIL
     // NOTE: backend kamu menerima Authorization header, jadi kita kirim "Bearer <token>"
     suspend fun sendVerificationEmail(): AuthResponse? {
-        val res = api.sendVerificationEmail()
+        val res = api().sendVerificationEmail()
         return res.body() ?: AuthResponse(message = res.errorBody()?.string())
     }
 
@@ -108,7 +159,7 @@ object AuthRepository {
         val token = UserLocal.getToken(context) ?: return@withContext null
 
         try {
-            val res = api.getUser()
+            val res = api().getUser()
 
             when {
                 res.isSuccessful -> res.body()
@@ -131,7 +182,7 @@ object AuthRepository {
 
 
     suspend fun forgotPassword(email: String): AuthResponse? {
-        val res = api.forgotPassword(mapOf("email" to email))
+        val res = publicApi().forgotPassword(mapOf("email" to email))
         return res.body() ?: AuthResponse(message = res.errorBody()?.string())
     }
 
@@ -141,29 +192,28 @@ object AuthRepository {
         photoUri: Uri? = null
     ): UserData? {
 
-        val token = UserLocal.getToken(context) ?: return null
         val namePart = name.toRequestBody("text/plain".toMediaTypeOrNull())
         val photoPart = photoUri?.let { uriToMultipart(context, it, "profile_photo") }
 
         return try {
-            val res = api.updateProfile( namePart, photoPart)
+            val response = api().updateProfile(namePart, photoPart)
 
-            if (res.isSuccessful) {
-                val user = res.body()?.data?.user
-                user?.let {
-                    UserLocal.saveUser(context, it)
-                    photoUri?.let { uri ->
-                        UserLocal.saveProfilePhotoLocal(context, uri, it.id!!)
-                    }
-                }
+            Log.d("UPDATE_PROFILE_CODE", response.code().toString())
+            Log.d("UPDATE_PROFILE_BODY", response.body().toString())
 
-                user
-            } else null
+            if (response.isSuccessful) {
+                response.body()?.user
+            } else {
+                Log.e("UPDATE_PROFILE_ERROR", response.errorBody()?.string() ?: "Unknown error")
+                null
+            }
 
         } catch (e: Exception) {
+            Log.e("UPDATE_PROFILE_EXCEPTION", e.message ?: "error")
             null
         }
     }
+
 
 
     private fun uriToMultipart(context: Context, uri: Uri, field: String): MultipartBody.Part {
@@ -215,7 +265,7 @@ object AuthRepository {
             ?: return FormSubmitResponse(false, "Token tidak ditemukan")
 
         return try {
-            val response = api.submitForm(form)
+            val response = api().submitForm(form)
 
             if (response.isSuccessful) {
                 response.body()
@@ -244,7 +294,7 @@ object AuthRepository {
         if (token.isNullOrEmpty()) return false
 
         return try {
-            val response = api.getUser()
+            val response = api().getUser()
             Log.d("CHECK_TOKEN", "Response code = ${response.code()}")
 
             when (response.code()) {
@@ -270,7 +320,7 @@ object AuthRepository {
         val token = UserLocal.getToken(context) ?: return null
 
         return try {
-            val response = api.sendBotMessage(
+            val response = api().sendBotMessage(
                 request = BotRequest(message)
             )
             if (response.isSuccessful) {
@@ -301,7 +351,7 @@ object AuthRepository {
             )
 
         return try {
-            val response = api.changePassword(
+            val response = api().changePassword(
                 mapOf(
                     "old_password" to oldPass,
                     "new_password" to newPass,
@@ -355,7 +405,7 @@ object AuthRepository {
         promo: Boolean
     ) {
 
-        api.updateNotifPreference(
+        api().updateNotifPreference(
             mapOf(
                 "pengingat" to pengingat,
                 "pembaruan_aplikasi" to pembaruanAplikasi,
@@ -370,7 +420,7 @@ object AuthRepository {
     ): Boolean {
 
         return try {
-            val res = api.sendChat(
+            val res = api().sendChat(
                 mapOf(
                     "room_id" to roomId,
                     "message" to message
@@ -388,28 +438,10 @@ object AuthRepository {
         val token = UserLocal.getToken(context) ?: return null
 
         return try {
-            val res = api.getChats(roomId)
+            val res = api().getChats(roomId)
             if (res.isSuccessful) res.body() else null
         } catch (e: Exception) {
             null
-        }
-    }
-    suspend fun isUserOwnerOfPendaftaran(
-        context: Context,
-        pendaftaranId: Int,
-        metodePembayaran: String
-    ): Boolean {
-
-        return try {
-            val response = ApiClient.authApi.getSnapToken(
-                SnapRequest(
-                    pendaftaran_id = pendaftaranId,
-                    metode = metodePembayaran
-                )
-            )
-            response.isSuccessful
-        } catch (e: Exception) {
-            false
         }
     }
 

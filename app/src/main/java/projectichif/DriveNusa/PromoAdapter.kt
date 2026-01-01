@@ -4,8 +4,11 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 
 class PromoAdapter(
     private val promos: MutableList<PromoItem>
@@ -23,8 +26,10 @@ class PromoAdapter(
         notifyDataSetChanged()
     }
 
-    fun hideLoading() {
+    fun submitData(newData: List<PromoItem>) {
         isLoading = false
+        promos.clear()
+        promos.addAll(newData)
         notifyDataSetChanged()
     }
 
@@ -55,6 +60,19 @@ class PromoAdapter(
             holder.title.text = item.title
             holder.subtitle.text = item.subtitle ?: "-"
 
+            Glide.with(holder.itemView)
+                .load(item.imageUrl)
+                .override(900, 350)
+                .timeout(20_000)
+                .centerCrop()
+                .placeholder(R.drawable.placeholder_promo)
+                .error(R.drawable.placeholder_promo)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.image)
+
+
+
+
             holder.itemView.setOnClickListener {
                 val intent = Intent(holder.itemView.context, PromoDetailActivity::class.java)
                 intent.putExtra("PROMO_ID", item.id)
@@ -67,10 +85,15 @@ class PromoAdapter(
         }
     }
 
+
+
     inner class PromoVH(v: View) : RecyclerView.ViewHolder(v) {
         val title: TextView = v.findViewById(R.id.tvTitle)
         val subtitle: TextView = v.findViewById(R.id.tvSubtitle)
+        val image: ImageView = v.findViewById(R.id.imgPromo)
     }
+
 }
+
 
 

@@ -60,16 +60,8 @@ class RegisterActivity : AppCompatActivity() {
             .start()
     }
 
-    private fun showLoading() {
-        binding.btnRegister.isEnabled = false
-        binding.btnRegister.text = "Loading..."
-        binding.progressBarRegister.visibility = View.VISIBLE
-    }
-
-    private fun hideLoading() {
-        binding.btnRegister.isEnabled = true
-        binding.btnRegister.text = "Daftar"
-        binding.progressBarRegister.visibility = View.GONE
+    fun showLoading(show: Boolean) {
+        binding.loadingOverlay.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     private fun doRegister() {
@@ -97,46 +89,41 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        showLoading()
+        showLoading(true)
 
         lifecycleScope.launch {
             try {
-                val response = AuthRepository.registerUser(username, email, password)
-                hideLoading()
+                val response = AuthRepository.registerUser(
+                    this@RegisterActivity,
+                    username,
+                    email,
+                    password
+                )
+
+                showLoading(false)
 
                 if (response != null && response.isSuccess()) {
 
-                    // ============================
-                    // SIMPAN TOKEN DI SharedPreferences
-                    // ============================
-                    val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-                    prefs.edit().putString("token", response.tokenType).apply()
-
-                    Toast.makeText(
-                        this@RegisterActivity,
-                        "Registrasi berhasil! Silakan verifikasi email.",
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    // ============================
-                    // Pindah ke VerificationActivity
-                    // hanya kirim email
-                    // ============================
                     val intent = Intent(this@RegisterActivity, VerificationActivity::class.java)
-                    intent.putExtra("email", email)   // <— hanya kirim email
-                    startActivity(intent)
+                    intent.putExtra(VerificationActivity.EXTRA_EMAIL, email)
+                    intent.putExtra(
+                        VerificationActivity.EXTRA_TYPE,
+                        VerificationActivity.TYPE_REGISTER
+                    )
 
+                    startActivity(intent)
+                    finish()
                 } else {
-                    Toast.makeText(
-                        this@RegisterActivity,
+                    Toast.makeText(this@RegisterActivity,
                         response?.message ?: "Registrasi gagal",
-                        Toast.LENGTH_LONG
-                    ).show()
+                        Toast.LENGTH_LONG).show()
                 }
 
             } catch (e: Exception) {
-                hideLoading()
-                Toast.makeText(this@RegisterActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                showLoading(false)
+                Toast.makeText(this@RegisterActivity,
+                    "Terjadi kesalahan",
+                    Toast.LENGTH_LONG).show()
             }
         }
     }

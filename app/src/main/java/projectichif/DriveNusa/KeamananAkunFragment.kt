@@ -48,8 +48,13 @@ class KeamananAkunFragment : Fragment() {
             else -> submitChangePassword(oldPass, newPass)
         }
     }
+    private fun showLoading(show: Boolean) {
+        binding.loadingOverlay.visibility =
+            if (show) View.VISIBLE else View.GONE
+    }
 
     private fun submitChangePassword(oldPass: String, newPass: String) {
+        showLoading(true)
         binding.btnKonfirmasi.isEnabled = false
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -59,15 +64,14 @@ class KeamananAkunFragment : Fragment() {
                 newPass
             )
 
+            showLoading(false)
             binding.btnKonfirmasi.isEnabled = true
 
             if (result?.success == true) {
                 toast("Password berhasil diubah, silakan login ulang")
 
-                // 🔐 WAJIB: hapus semua data user & token
-                UserLocal.clearAll(requireContext())
+                UserLocal.clearSession(requireContext())
 
-                // 🔥 KEMBALI KE LOGIN
                 val intent = Intent(requireContext(), LoginActivity::class.java)
                 intent.flags =
                     Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -79,6 +83,7 @@ class KeamananAkunFragment : Fragment() {
             }
         }
     }
+
 
 
     private fun toast(msg: String) {

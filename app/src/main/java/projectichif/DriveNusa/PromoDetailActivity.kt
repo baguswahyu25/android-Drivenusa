@@ -7,8 +7,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlinx.coroutines.launch
 import projectichif.DriveNusa.api.AuthRepository
+
 
 class PromoDetailActivity : AppCompatActivity() {
 
@@ -59,10 +61,14 @@ class PromoDetailActivity : AppCompatActivity() {
                         } ?: tvExpired.text
 
                         Glide.with(this@PromoDetailActivity)
-                            .load(promo.imageUrl)
+                            .load(intent.getStringExtra("IMAGE"))
+                            .override(900, 350)
+                            .centerCrop()
                             .placeholder(R.drawable.placeholder_promo)
                             .error(R.drawable.placeholder_promo)
                             .into(imgPromo)
+
+
                     }
                 } catch (e: Exception) {
                     Log.e("PROMO_DETAIL", e.message ?: "API error")

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -68,6 +69,8 @@ class SearchActivity : AppCompatActivity() {
                     paketList = paketResponseList.map { it.toPaketKursus() }
                     adapter.updateData(paketList)
                 }
+                Log.d("SEARCH", "Total paket = ${paketList.size}")
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -84,6 +87,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun showHistory() {
         val history = SearchHistoryManager.getHistory(this)
+
         if (history.isNotEmpty()) {
             historyAdapter = SearchHistoryAdapter(history) { selected ->
                 binding.etSearch.setText(selected)
@@ -91,8 +95,10 @@ class SearchActivity : AppCompatActivity() {
             }
             binding.rvSearch.adapter = historyAdapter
         } else {
-            adapter.updateData(emptyList())
+            // ✅ KEMBALIKAN LIST PAKET, BUKAN KOSONGKAN
             binding.rvSearch.adapter = adapter
+            adapter.updateData(paketList)
         }
     }
+
 }

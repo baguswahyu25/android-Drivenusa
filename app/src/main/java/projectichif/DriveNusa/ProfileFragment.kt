@@ -2,7 +2,9 @@
 
     import android.app.Activity
     import android.content.Intent
+    import android.graphics.BitmapFactory
     import android.os.Bundle
+    import android.util.Log
     import android.view.LayoutInflater
     import android.view.View
     import android.view.ViewGroup
@@ -30,6 +32,8 @@
         private var _binding: FragmentProfileBinding? = null
         private val binding get() = _binding!!
         private var loadUserJob: Job? = null
+        private var currentUser: UserData? = null
+
 
         private val editProfileLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -72,11 +76,93 @@
         }
 
         private fun setupClickListeners() {
-            binding.btnChat.setOnClickListener { openChatFragment() }
-            binding.itemPengajuanJadwal.setOnClickListener {
-                startActivity(Intent(requireContext(), PengajuanJadwalActivity::class.java))
+            binding.itemCicilan.setOnClickListener {
+
+                // cegah double click
+                binding.itemCicilan.isEnabled = false
+                showLoading(true)
+
+                lifecycleScope.launch {
+                    try {
+                        val response = ApiClient.authApi.getPendaftaranAktif()
+
+                        showLoading(false)
+                        binding.itemCicilan.isEnabled = true
+
+                        if (response.isSuccessful && response.body() != null) {
+
+                            val pendaftaranId = response.body()!!.id
+                            val intent = Intent(requireContext(), CicilanActivity::class.java)
+                            intent.putExtra("extra_pendaftaran_id", pendaftaranId)
+                            startActivity(intent)
+
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Belum ada pendaftaran aktif",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    } catch (e: Exception) {
+                        showLoading(false)
+                        binding.itemCicilan.isEnabled = true
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Gagal membuka cicilan",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
-            binding.itemKeluarAkun.setOnClickListener { performLogout() }
+
+            binding.itemPengajuanJadwal.setOnClickListener {
+
+                // cegah double click
+                binding.itemPengajuanJadwal.isEnabled = false
+                showLoading(true)
+
+                lifecycleScope.launch {
+                    try {
+                        val response = ApiClient.authApi.getPendaftaranAktif()
+
+                        showLoading(false)
+                        binding.itemPengajuanJadwal.isEnabled = true
+
+                        if (response.isSuccessful && response.body() != null) {
+
+                            val pendaftaranId = response.body()!!.id
+                            val intent = Intent(requireContext(), PengajuanJadwalActivity::class.java)
+                            intent.putExtra("pendaftaran_id", pendaftaranId)
+                            startActivity(intent)
+
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Belum ada pendaftaran aktif",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    } catch (e: Exception) {
+
+                        showLoading(false)
+                        binding.itemPengajuanJadwal.isEnabled = true
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Gagal mengambil pendaftaran",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+
+            binding.itemKeluarAkun.setOnClickListener {
+                showLogoutConfirmation()
+            }
+
             binding.btnRiwayat.setOnClickListener {
                 startActivity(Intent(requireContext(), RiwayatPemesananActivity::class.java))
             }
@@ -91,6 +177,10 @@
             binding.itemSyaratKetentuan.setOnClickListener {
                 startActivity(Intent(requireContext(), TermsActivity::class.java))
             }
+        }
+        private fun showLoading(show: Boolean) {
+            binding.loadingOverlay.visibility =
+                if (show) View.VISIBLE else View.GONE
         }
 
         private fun reloadUserData() {
@@ -109,7 +199,7 @@
                     resetProfileUI()
                     return@launch
                 }
-
+                currentUser = localUser
                 binding.tvUsername.text = localUser.name ?: "-"
                 binding.tvUserContact.text = localUser.email ?: "-"
                 loadProfilePhoto(localUser)
@@ -125,43 +215,37 @@
         private fun resetProfileUI() {
             binding.tvUsername.text = "-"
             binding.tvUserContact.text = "-"
-            binding.profileImage.setImageResource(R.drawable.ic_user)
+            binding.profileImage.setImageResource(R.drawable.ic_person)
         }
         private fun loadProfilePhoto(user: UserData) {
             val ctx = requireContext()
             val userId = user.id ?: return
+
+            // 1️⃣ Coba load dari LOCAL DULU (INSTAN)
             val localPath = UserLocal.getProfilePhotoLocalPath(ctx, userId)
+            if (!localPath.isNullOrEmpty() && File(localPath).exists()) {
+                binding.profileImage.setImageBitmap(
+                    BitmapFactory.decodeFile(localPath)
+                )
+                return // ⛔ STOP, jangan ke server
+            }
 
-            when {
-                !localPath.isNullOrEmpty() && File(localPath).exists() -> {
-                    Glide.with(this)
-                        .load(File(localPath))
-                        .skipMemoryCache(true)
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .into(binding.profileImage)
-                }
-
-                !user.profilePhotoUrl.isNullOrEmpty() -> {
-                    Glide.with(this)
-                        .load("${user.profilePhotoUrl}?t=${System.currentTimeMillis()}")
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .into(binding.profileImage)
-                }
-
-                else -> binding.profileImage.setImageResource(R.drawable.ic_user)
+            // 2️⃣ Kalau TIDAK ADA lokal → pakai SERVER
+            if (!user.profilePhotoUrl.isNullOrEmpty()) {
+                Glide.with(this)
+                    .load(user.profilePhotoUrl) // ❌ TANPA timestamp
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .into(binding.profileImage)
+            } else {
+                // 3️⃣ Server null → hapus lokal & pakai default
+                UserLocal.clearProfilePhoto(ctx, userId)
+                binding.profileImage.setImageResource(R.drawable.ic_person)
             }
         }
 
 
 
 
-        private fun openChatFragment() {
-            val fragment = CsChatFragment()
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
-        }
 
         private fun openKeamananAkunFragment() {
             val fragment = KeamananAkunFragment()
@@ -170,16 +254,36 @@
                 .addToBackStack(null)
                 .commit()
         }
+        private fun showLogoutConfirmation() {
+            val ctx = requireContext()
+
+            androidx.appcompat.app.AlertDialog.Builder(ctx)
+                .setTitle("Konfirmasi Logout")
+                .setMessage("Apakah Anda yakin ingin keluar dari akun?")
+                .setCancelable(false)
+                .setPositiveButton("Ya") { _, _ ->
+                    performLogout()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss() // tetap di ProfileFragment
+                }
+                .show()
+        }
 
         private fun performLogout() {
-            val ctx = context ?: return
-            UserLocal.clearSession(requireContext())
+            val ctx = requireContext()
+
+            UserLocal.clearSession(ctx)
+
             Toast.makeText(ctx, "Berhasil keluar akun", Toast.LENGTH_SHORT).show()
-            val intent = Intent(requireActivity(), LoginActivity::class.java)
+
+            val intent = Intent(ctx, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
+
             requireActivity().finish()
         }
+
 
         private fun openCustomerServiceFragment() {
             val fragment = CsChatFragment()

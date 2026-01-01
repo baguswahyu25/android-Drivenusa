@@ -22,14 +22,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // AUTO LOGIN
-        val savedToken = UserLocal.getToken(this)
-        if (!savedToken.isNullOrEmpty()) {
-            startActivity(Intent(this, HomeActivity::class.java))
-            finish()
-            return
-        }
-
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -55,6 +47,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     // ================= UI =================
+    private fun showLoading(show: Boolean) {
+        binding.loadingOverlay.visibility =
+            if (show) View.VISIBLE else View.GONE
+    }
+
 
     private fun animateButtonClick(view: View) {
         view.animate()
@@ -72,17 +69,6 @@ class LoginActivity : AppCompatActivity() {
             }.start()
     }
 
-    private fun showLoading() {
-        binding.btnLogin.isEnabled = false
-        binding.btnLogin.text = "Loading..."
-        binding.progressBarLogin.visibility = View.VISIBLE
-    }
-
-    private fun hideLoading() {
-        binding.btnLogin.isEnabled = true
-        binding.btnLogin.text = "Login"
-        binding.progressBarLogin.visibility = View.GONE
-    }
 
     private fun showError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
@@ -104,7 +90,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        showLoading()
+        showLoading(true)
 
         lifecycleScope.launch {
             try {
@@ -114,34 +100,18 @@ class LoginActivity : AppCompatActivity() {
                     password
                 )
 
-                hideLoading()
+                showLoading(false)
 
-                if (response == null) {
-                    showError("Server tidak merespon")
-                    return@launch
-                }
-
-                val token = response.accessToken
-                if (!response.accessToken.isNullOrEmpty()) {
-                    UserLocal.saveToken(this@LoginActivity, response.accessToken!!)
+                if (!response?.accessToken.isNullOrEmpty()) {
                     startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
                     finish()
                 } else {
-                    showError(response.message ?: "Login gagal")
+                    showError(response?.message ?: "Login gagal")
                 }
 
-
-
-            } catch (e: UnknownHostException) {
-                hideLoading()
-                showError("Tidak terhubung ke server")
-            } catch (e: SocketTimeoutException) {
-                hideLoading()
-                showError("Timeout koneksi")
             } catch (e: Exception) {
-                hideLoading()
+                showLoading(false)
                 showError("Terjadi kesalahan")
-                Log.e("LOGIN_EXCEPTION", e.message ?: "Unknown error")
             }
         }
     }

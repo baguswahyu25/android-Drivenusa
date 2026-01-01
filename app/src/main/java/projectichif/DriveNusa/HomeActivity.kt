@@ -46,13 +46,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    // 🔥 CEK TOKEN SETIAP APLIKASI KEMBALI KE HOME
-    override fun onResume() {
-        super.onResume()
-        verifyToken()
-    }
-
-
     // ==========================================================
     // FUNGSI CEK TOKEN — DIPAKAI DI onCreate & onResume
     // ==========================================================
