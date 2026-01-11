@@ -23,10 +23,15 @@ class NotificationAdapter(
 
         init {
             itemView.setOnClickListener {
-                listener.onNotificationClicked(notificationList[adapterPosition])
+                val pos = adapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+                    listener.onNotificationClicked(notificationList[pos])
+                }
             }
         }
+
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)

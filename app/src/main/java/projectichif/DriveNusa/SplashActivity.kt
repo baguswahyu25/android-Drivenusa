@@ -104,7 +104,7 @@ class SplashActivity : AppCompatActivity() {
                     }
                 }
 
-            }, 2200) // ⬅️ lebih pendek dari 3000
+            }, 4000) // ⬅️ lebih pendek dari 3000
 
         }
     }

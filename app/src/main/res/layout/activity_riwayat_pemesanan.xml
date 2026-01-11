@@ -2,41 +2,47 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@android:color/white">
+    android:background="#F3F4F6">
 
     <!-- HEADER -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:background="@android:color/white"
+        android:paddingHorizontal="16dp">
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_arrow_back"
-            />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="riwayat pemesanan"
+            android:text="riwayat"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:layout_marginStart="16dp"
-            android:textColor="@android:color/black" />
-    </LinearLayout>
+            android:textColor="#111827"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <!-- SHIMMER -->
     <com.facebook.shimmer.ShimmerFrameLayout
         android:id="@+id/shimmerLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:paddingTop="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -46,16 +52,16 @@
             <include layout="@layout/item_riwayat_shimmer"/>
             <include layout="@layout/item_riwayat_shimmer"/>
             <include layout="@layout/item_riwayat_shimmer"/>
-            <include layout="@layout/item_riwayat_shimmer"/>
-
         </LinearLayout>
+
     </com.facebook.shimmer.ShimmerFrameLayout>
 
-    <!-- LIST RIWAYAT -->
+    <!-- LIST -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRiwayat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingTop="8dp"
+        android:clipToPadding="false"
         android:visibility="gone"/>
-
 </LinearLayout>

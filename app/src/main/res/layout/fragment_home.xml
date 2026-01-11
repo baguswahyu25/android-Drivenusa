@@ -1,152 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".HomeFragment">
+    android:background="#F4F6F8">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        
-        <!-- HEADER BAR: LOGO + SEARCH -->
-        <LinearLayout
+        <!-- HEADER BIRU -->
+        <RelativeLayout
+            android:id="@+id/headerBlue"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:layout_height="200dp"
+            android:background="@drawable/bg_home_header_blue"
             android:padding="16dp">
 
-            <!-- LOGO -->
-            <ImageView
-                android:id="@+id/logoImage"
+            <!-- PHOTO PROFILE -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/drivenusa"
-                android:contentDescription="Drive Nusa Logo" />
-
-            <!-- Jarak -->
-            <Space
-                android:layout_width="12dp"
-                android:layout_height="1dp"/>
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/ic_person"
+                android:scaleType="centerCrop" />
 
             <!-- SEARCH -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardSearch"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_weight="1"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp">
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_toEndOf="@id/profileImage"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="21dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp">
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:src="@drawable/ic_search_icon"
                         app:tint="@android:color/darker_gray"/>
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Search"
-                        android:textColor="@color/black"/>
+                        android:text="cari sekarang"
+                        android:textColor="@android:color/darker_gray"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+        </RelativeLayout>
 
-        </LinearLayout>
-
-        <!-- SLIDER -->
+        <!-- SLIDER (DI LUAR HEADER) -->
         <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/view_pager_slider"
+            android:id="@+id/viewPagerSlider"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_height="160dp"
+            android:layout_marginTop="-80dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:clipToPadding="false"/>
 
-        <!-- DOTS -->
-        <LinearLayout
-            android:id="@+id/slider_dots_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp" />
-
-        <!-- JADWAL -->
+        <!-- TITLE -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Jadwal kursus"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cardPertemuan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            android:padding="12dp"
-            android:background="@drawable/background_jadwal_kursus">
-
-            <TextView
-                android:id="@+id/tv_pertemuan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pertemuan 1"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Belum diajukan"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- TITLE PAKET -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Paket Kursus Mengemudi"
+            android:text="Paket kursus"
             android:textStyle="bold"
             android:textSize="16sp"
             android:textColor="@color/black"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="50dp"/>
 
         <!-- LIST PAKET -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_paket_kursus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:overScrollMode="never"
-            android:paddingBottom="100dp"
-            tools:listitem="@layout/item_paket_kursus" />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="140dp"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false"/>
+
 
     </LinearLayout>
-
 </androidx.core.widget.NestedScrollView>

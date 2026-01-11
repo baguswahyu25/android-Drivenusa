@@ -24,10 +24,6 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        binding.btnLogin.backgroundTintList =
-            ContextCompat.getColorStateList(this, R.color.orange)
-
         // Animasi logo
         binding.logoImage.alpha = 0f
         binding.logoImage.animate().alpha(1f).setDuration(1000).start()
@@ -37,7 +33,7 @@ class LoginActivity : AppCompatActivity() {
             doLogin()
         }
 
-        binding.daftarText.setOnClickListener {
+        binding.tvSignUp.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 

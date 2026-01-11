@@ -1,137 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white"
+    android:background="#0D61A9"
     tools:context=".LoginActivity">
-
-
-    <!-- ================= MAIN CONTENT ================= -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/white">
+        android:layout_height="match_parent">
 
-    <!-- Logo -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:gravity="center">
+            <!-- Logo -->
 
-        <ImageView
-            android:id="@+id/logoImage"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/drivenusa"/>
-    </LinearLayout>
-    <!-- Bagian bawah: Form login -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_horizontal"
-        android:background="@drawable/bg_form_gradient">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Login"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="16dp" />
-
-        <EditText
-            android:id="@+id/inputEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="email"
-            android:drawablePadding="10dp"
-            android:inputType="textEmailAddress"
-            android:padding="12dp"
-            android:background="@drawable/edittext_white_rounded"
-            android:layout_marginBottom="12dp" />
-
-        <EditText
-            android:id="@+id/inputPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="password"
-            android:inputType="textPassword"
-            android:padding="12dp"
-            android:background="@drawable/edittext_white_rounded"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/lupaPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="lupa password ?"
-            android:textSize="12sp"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <!-- TOMBOL LOGIN -->
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Login"
-            android:textStyle="bold"
-            android:backgroundTint="#f89331"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="12dp" />
-
-        <!-- 🔥 PROGRESS BAR LOADING -->
-        <ProgressBar
-            android:id="@+id/progressBarLogin"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:indeterminate="true"
-            android:visibility="gone"
-            android:layout_marginBottom="18dp"
-            android:layout_gravity="center" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/header_text_group"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="40dp"
+            app:layout_constraintTop_toTopOf="parent">
 
+            <ImageView
+                android:id="@+id/logoImage"
+                android:layout_width="126dp"
+                android:layout_height="80dp"
+                android:gravity="left"
+                android:src="@drawable/drivenusa" />
             <TextView
-
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="belum punya akun ?"
-                android:textColor="@android:color/white"
-                android:textSize="12sp" />
+                android:text="Hello!"
+                android:textColor="@color/white"
+                android:textSize="48sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/daftarText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=" daftar"
-                android:textStyle="bold"
-                android:textColor="@color/orange"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/tvResendVerification"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Kirim ulang verifikasi email"
-                android:textColor="@android:color/white"
-                android:visibility="gone"
-                android:textSize="12sp"
-                android:layout_marginBottom="8dp" />
+                android:text="Welcome to Drivenusa"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
         </LinearLayout>
-    </LinearLayout>
-    </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_login_card"
+            android:paddingHorizontal="40dp"
+            android:paddingTop="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header_text_group">
+
+            <TextView
+                android:id="@+id/tv_login_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:textColor="#0D61A9"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/inputEmail"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/bg_input_field"
+                android:drawableStart="@drawable/ic_email"
+                android:drawablePadding="15dp"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:paddingHorizontal="20dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_login_title" />
+
+            <EditText
+                android:id="@+id/inputPassword"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_input_field"
+                android:drawableStart="@drawable/ic_lock"
+                android:drawablePadding="15dp"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:paddingHorizontal="20dp"
+                app:layout_constraintTop_toBottomOf="@+id/inputEmail" />
+
+            <TextView
+                android:id="@+id/lupaPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Forgot password"
+                android:textColor="#0D61A9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/inputPassword" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/bg_button_login"
+                android:text="Login"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@+id/lupaPassword" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnLogin">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Don't have account? "
+                    android:textColor="@android:color/darker_gray" />
+
+                <TextView
+                    android:id="@+id/tv_sign_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Register"
+                    android:textColor="#0D61A9"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- ================= LOADING OVERLAY ================= -->
 <FrameLayout
 android:id="@+id/loadingOverlay"

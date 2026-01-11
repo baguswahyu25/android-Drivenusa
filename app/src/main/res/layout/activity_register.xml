@@ -1,138 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/white"
+    android:background="#0D61A9"
     tools:context=".RegisterActivity">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@android:color/white">
-    <!-- BAGIAN ATAS (LOGO) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:orientation="vertical"
-        android:gravity="center">
-
-        <ImageView
-            android:id="@+id/imgLogo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/drivenusa"
-            android:contentDescription="Logo"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter" />
-    </LinearLayout>
-
-    <!-- BAGIAN FORM -->
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:background="@drawable/bg_form_gradient">
-
+        android:layout_height="match_parent">
         <LinearLayout
+            android:id="@+id/header_text_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="40dp"
+            app:layout_constraintTop_toTopOf="parent">
 
+            <ImageView
+                android:id="@+id/logoImage"
+                android:layout_width="126dp"
+                android:layout_height="80dp"
+                android:gravity="left"
+                android:src="@drawable/drivenusa" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello!"
+                android:textColor="@color/white"
+                android:textSize="38sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome to Drivenusa"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+        </LinearLayout>
+        <!-- CARD FORM -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_login_card"
+            android:padding="32dp"
+            app:layout_constraintTop_toBottomOf="@+id/header_text_group"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- BACK TO LOGIN (DALAM CARD) -->
+            <LinearLayout
+                android:id="@+id/tvLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="#0D61A9"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Back to login"
+                    android:textColor="#0D61A9"
+                    android:textSize="24sp"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- TITLE -->
             <TextView
                 android:id="@+id/tvRegisterTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Register"
-                android:textSize="26sp"
+                android:textColor="#0D61A9"
+                android:textSize="32sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:layout_gravity="center"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvLogin"/>
 
             <!-- Username -->
             <EditText
                 android:id="@+id/etUsername"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="username"
-                android:background="@drawable/bg_inputbox"
-                android:padding="12dp"
-                android:layout_marginBottom="12dp" />
+                android:layout_height="60dp"
+                android:layout_marginTop="32dp"
+                android:background="@drawable/bg_input_field"
+                android:drawableStart="@drawable/ic_username"
+                android:drawablePadding="15dp"
+                android:hint="Username"
+                android:paddingHorizontal="20dp"
+                app:layout_constraintTop_toBottomOf="@id/tvRegisterTitle"/>
 
             <!-- Email -->
             <EditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="email"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_input_field"
+                android:drawableStart="@drawable/ic_email"
+                android:drawablePadding="15dp"
+                android:hint="Email"
                 android:inputType="textEmailAddress"
-                android:background="@drawable/bg_inputbox"
-                android:padding="12dp"
-                android:layout_marginBottom="12dp" />
+                android:paddingHorizontal="20dp"
+                app:layout_constraintTop_toBottomOf="@id/etUsername"/>
 
             <!-- Password -->
             <EditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_input_field"
+                android:drawableStart="@drawable/ic_lock"
+                android:drawablePadding="15dp"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:background="@drawable/edittext_white_rounded"
-                android:padding="12dp"
-                android:layout_marginBottom="8dp" />
+                android:paddingHorizontal="20dp"
+                app:layout_constraintTop_toBottomOf="@id/etEmail"/>
 
             <!-- Confirm Password -->
             <EditText
                 android:id="@+id/etConfirmPassword"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Konfirmasi Password"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_input_field"
+                android:drawableStart="@drawable/ic_lock"
+                android:drawablePadding="15dp"
+                android:hint="Confirm password"
                 android:inputType="textPassword"
-                android:background="@drawable/edittext_white_rounded"
-                android:padding="12dp"
-                android:layout_marginBottom="12dp" />
+                android:paddingHorizontal="20dp"
+                app:layout_constraintTop_toBottomOf="@id/etPassword"/>
 
-            <!-- TOMBOL REGISTER -->
-            <Button
+            <!-- BUTTON -->
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Register"
+                android:layout_height="55dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/bg_button_login"
+                android:text="Sign up"
                 android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:backgroundTint="#f89331"
-                android:layout_marginBottom="12dp" />
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/etConfirmPassword"/>
 
-            <!-- PROGRESS BAR -->
+            <!-- PROGRESS -->
             <ProgressBar
                 android:id="@+id/progressBarRegister"
-                style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:layout_marginBottom="20dp" />
-
-            <!-- LINK LOGIN -->
-            <TextView
-                android:id="@+id/tvLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
                 android:layout_marginTop="16dp"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:clickable="true"
-                android:focusable="true" />
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/btnRegister"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-        </LinearLayout>
-    </ScrollView>
-    </LinearLayout>
-    <!-- ================= LOADING OVERLAY ================= -->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- LOADING OVERLAY -->
     <FrameLayout
         android:id="@+id/loadingOverlay"
         android:layout_width="match_parent"
@@ -164,4 +205,5 @@
                 android:layout_marginTop="8dp"/>
         </LinearLayout>
     </FrameLayout>
+
 </FrameLayout>

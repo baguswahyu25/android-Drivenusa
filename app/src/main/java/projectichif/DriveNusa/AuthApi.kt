@@ -115,31 +115,38 @@
             )
             data class RiwayatModel(
                 val id: Int,
-                val image: String,
-                val judul: String,
-                val paket: String,
-                val harga: Int,
-                val tanggal: String,
-                val status: String
-            )
-            data class DetailPemesananResponse(
 
-                val id: Int,
-                val judul: String,
+                @SerializedName("mobil_dipilih")
+                val mobil: String,   // ✅ sekarang kebaca
+
                 val paket: String,
                 val harga: Int,
                 val tanggal: String,
                 val status: String,
+                val image: String
+            )
+            data class DetailPemesananResponse(
+                val id: Int,
+                val judul: String,
+                @SerializedName("mobil_dipilih")
+                val mobil: String,
+                val paket: String,
+                val harga: Int,
+                val tanggal: String?, // ✅ WAJIB nullable
+                val status: String,
 
                 @SerializedName("order_id")
-                val orderId: String,
+                val orderId: String?,
 
                 @SerializedName("metode_pembayaran")
-                val metodePembayaran: String,
+                val metodePembayaran: String?,
 
                 @SerializedName("payment_status")
-                val paymentStatus: String
+                val paymentStatus: String,
+
+                val image: String
             )
+
 
             data class RiwayatResponse(
                 val id: Int,

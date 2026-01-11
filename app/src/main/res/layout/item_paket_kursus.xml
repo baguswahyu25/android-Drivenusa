@@ -4,75 +4,61 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
 
+        <!-- IMAGE -->
         <ImageView
             android:id="@+id/img_paket_mobil"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintDimensionRatio="4:3"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/img_paket_manual"/>
 
-        <View
-            android:id="@+id/view_overlay"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:background="#0A2C99"
-            app:layout_constraintBottom_toBottomOf="@id/img_paket_mobil"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent" />
-
+        <!-- NAMA PAKET -->
         <TextView
             android:id="@+id/tv_nama_paket"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Paket Manual"
-            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:text="Paket manual"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/view_overlay"
-            app:layout_constraintTop_toTopOf="@id/view_overlay"
-            app:layout_constraintBottom_toTopOf="@id/tv_harga"/>
+            android:textSize="14sp"
+            android:textColor="@color/black"/>
 
+        <!-- HARGA -->
         <TextView
             android:id="@+id/tv_harga"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:text="Rp. 1.150.000"
-            android:textColor="@android:color/white"
+            android:text="Rp. 2.150.000"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tv_nama_paket"
-            app:layout_constraintBottom_toBottomOf="@id/view_overlay"/>
+            android:textColor="@android:color/darker_gray"/>
 
-        <Button
+        <!-- BUTTON -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_pilih"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:text="Pilih"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginTop="8dp"
+            android:text="Pilih sekarang"
             android:textSize="12sp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:backgroundTint="#FFC107"
-            app:layout_constraintEnd_toEndOf="@id/view_overlay"
-            app:layout_constraintTop_toTopOf="@id/view_overlay"
-            app:layout_constraintBottom_toBottomOf="@id/view_overlay" />
+            android:textAllCaps="false"
+            android:textColor="#FF9800"
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            app:backgroundTint="@android:color/transparent"
+            app:strokeColor="#FF9800"
+            app:strokeWidth="1.5dp"
+            app:cornerRadius="18dp"/>
+
+
+    </LinearLayout>
+
 </androidx.cardview.widget.CardView>

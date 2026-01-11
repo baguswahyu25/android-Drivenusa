@@ -2,6 +2,7 @@ package projectichif.DriveNusa.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -50,6 +51,7 @@ class RiwayatPemesananActivity : AppCompatActivity() {
                 showShimmer(false)
 
                 val data = res.body() ?: emptyList()
+                Log.d("RIWAYAT_API", "code=${res.code()} body=${res.body()}")
 
                 binding.rvRiwayat.adapter =
                     RiwayatAdapter(

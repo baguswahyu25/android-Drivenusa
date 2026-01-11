@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import projectichif.DriveNusa.api.PaketKursus
 import projectichif.DriveNusa.api.PaketKursusResponse
@@ -20,7 +21,6 @@ class KursusFragment : Fragment(), OnPaketClickListener {
     private val binding get() = _binding!!
     private lateinit var adapter: PaketKursusAdapter
     private val viewModel: PaketKursusViewModel by activityViewModels()
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,10 +49,20 @@ class KursusFragment : Fragment(), OnPaketClickListener {
     }
 
     private fun setupRecyclerView() {
-        adapter = PaketKursusAdapter(listOf(), this)
-        binding.rvKursusPaket.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvKursusPaket.adapter = adapter
+        adapter = PaketKursusAdapter(
+            paketList = emptyList(),
+            isHome = false,
+            listener = this // 🔥 PENTING
+        )
+
+        binding.rvKursusPaket.apply {
+            layoutManager = GridLayoutManager(requireContext(), 2)
+            adapter = this@KursusFragment.adapter
+            setHasFixedSize(true)
+        }
     }
+
+
 
     private fun setupSearchBarClick() {
         binding.cardSearch.setOnClickListener {

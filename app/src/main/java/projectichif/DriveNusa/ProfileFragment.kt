@@ -110,7 +110,7 @@
 
                         Toast.makeText(
                             requireContext(),
-                            "Gagal membuka cicilan",
+                            "Gagal membuka  promo",
                             Toast.LENGTH_SHORT
                         ).show()
                     }

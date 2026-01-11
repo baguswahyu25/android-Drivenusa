@@ -24,14 +24,9 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val text = "Sudah punya akun? Login"
-        val span = SpannableString(text)
-
-        span.setSpan(ForegroundColorSpan(Color.WHITE), 0, 17, 0)
-        span.setSpan(ForegroundColorSpan(Color.parseColor("#f89331")), 18, text.length, 0)
-        binding.tvLogin.text = span
-
+        // Animasi logo
+        binding.logoImage.alpha = 0f
+        binding.logoImage.animate().alpha(1f).setDuration(1000).start()
         binding.tvLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()

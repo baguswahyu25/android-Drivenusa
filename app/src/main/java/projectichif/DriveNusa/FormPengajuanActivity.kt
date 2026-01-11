@@ -1,10 +1,12 @@
 package projectichif.DriveNusa
 
+import android.R
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -39,12 +41,16 @@ class FormPengajuanActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityFormPengajuanBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.layoutJam.visibility = View.GONE
+        binding.autoJam.visibility = View.GONE
+
 
         binding.txtPertemuan.text =
             intent.getStringExtra("pertemuan_nama") ?: "-"
 
         setupTanggalPicker()
+        binding.btnBack.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
 
         binding.btnAjukan.setOnClickListener {
             ajukanJadwal()
@@ -73,111 +79,77 @@ class FormPengajuanActivity : AppCompatActivity() {
             ).show()
         }
     }
+    private fun setupJamDropdown(jamList: List<String>) {
+
+        if (!pembayaranSuccess) {
+            binding.autoJam.isEnabled = false
+            binding.autoJam.text = null
+            return
+        }
+        binding.autoJam.setOnClickListener {
+            binding.autoJam.showDropDown()
+        }
+
+        binding.autoJam.isEnabled = true
+
+        val adapter = ArrayAdapter(
+            this,
+            R.layout.simple_dropdown_item_1line,
+            jamList
+        )
+
+        binding.autoJam.setAdapter(adapter)
+
+        binding.autoJam.setOnItemClickListener { _, _, position, _ ->
+            selectedJam = jamList[position]
+        }
+    }
 
     // ============================
     // LOAD JAM DARI API
     // ============================
     private fun loadJamDipakai(tanggal: String) {
 
-        showJamShimmer(true) // 🔥 SHIMMER MULAI
+        showJamShimmer(true)
 
         lifecycleScope.launch {
             try {
                 val response = api.jamDipakai(tanggal)
-
-                showJamShimmer(false) // 🔥 SHIMMER SELESAI
+                showJamShimmer(false)
 
                 if (response.isSuccessful) {
-                    jamDipakai[tanggal] =
-                        response.body()?.jam_dipakai ?: emptyList()
-                    renderJamButtons()
+                    val used = response.body()?.jam_dipakai ?: emptyList()
+
+                    val availableJam = listJam.filter { !used.contains(it) }
+                    setupJamDropdown(availableJam)
+
                 } else {
-                    Toast.makeText(
-                        this@FormPengajuanActivity,
-                        "Gagal load jam",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@FormPengajuanActivity, "Gagal load jam", Toast.LENGTH_SHORT).show()
                 }
 
             } catch (e: Exception) {
                 showJamShimmer(false)
-                Toast.makeText(
-                    this@FormPengajuanActivity,
-                    "Error koneksi",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@FormPengajuanActivity, "Error koneksi", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-
-    // ============================
-    // RENDER JAM
-    // ============================
-    private fun renderJamButtons() {
-        binding.layoutJam.removeAllViews()
-        val used = selectedTanggal?.let { jamDipakai[it] } ?: emptyList()
-
-        listJam.forEach { jam ->
-            val btn = Button(this)
-            btn.text = jam
-            btn.setTextColor(ContextCompat.getColor(this, android.R.color.white))
-            btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.purple_500)
-
-            if (used.contains(jam)) {
-                btn.isEnabled = false
-                btn.backgroundTintList = ContextCompat.getColorStateList(this, android.R.color.darker_gray)
-            }
-
-            btn.setOnClickListener {
-                if (!pembayaranSuccess) {
-                    Toast.makeText(this, "Selesaikan pembayaran terlebih dahulu", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-                selectedJam = jam
-                resetAllJamButtons()
-                btn.backgroundTintList = ContextCompat.getColorStateList(this, R.color.purple_700)
-            }
-
-            binding.layoutJam.addView(btn)
-        }
-    }
-
-    private fun resetAllJamButtons() {
-        for (i in 0 until binding.layoutJam.childCount) {
-            val b = binding.layoutJam.getChildAt(i) as Button
-            b.backgroundTintList = ContextCompat.getColorStateList(this, R.color.purple_500)
-        }
-    }
-
-    private fun disableSemuaJam() {
-        binding.layoutJam.removeAllViews()
-        listJam.forEach { jam ->
-            val btn = Button(this)
-            btn.text = jam
-            btn.isEnabled = false
-            btn.backgroundTintList = ContextCompat.getColorStateList(this, android.R.color.darker_gray)
-            binding.layoutJam.addView(btn)
         }
     }
     private fun showJamShimmer(show: Boolean) {
         if (show) {
             binding.shimmerJam.visibility = View.VISIBLE
             binding.shimmerJam.startShimmer()
-            binding.layoutJam.visibility = View.GONE
+            binding.autoJam.visibility = View.GONE
         } else {
             binding.shimmerJam.stopShimmer()
             binding.shimmerJam.visibility = View.GONE
-            binding.layoutJam.visibility = View.VISIBLE
+            binding.autoJam.visibility = View.VISIBLE
         }
     }
+
+
 
     // ============================
     // CEK STATUS PEMBAYARAN
     // ============================
-    // ============================
-// CEK STATUS PEMBAYARAN
-// ============================
     private fun cekStatusPembayaran() {
         binding.btnAjukan.isEnabled = false // default disabled
 
@@ -202,23 +174,26 @@ class FormPengajuanActivity : AppCompatActivity() {
 
                     pendaftaranId = pendaftaranAktif!!.id
 
-                    // 🔥 Periksa status transaksi sesuai enum Midtrans
-                    val status = pendaftaranAktif?.transaction?.transaction_status?.lowercase()
+                    val status = pendaftaranAktif
+                        ?.transaction
+                        ?.transaction_status
+                        ?.lowercase()
+
                     pembayaranSuccess = status in listOf("paid", "settlement", "capture")
 
-
-                    Log.d("FormPengajuan", "pembayaranSuccess: $pembayaranSuccess (status: $status)")
+                    Log.d("FormPengajuan", "STATUS BAYAR: $status | SUCCESS: $pembayaranSuccess")
 
                     if (!pembayaranSuccess) {
-                        disableSemuaJam()
                         tampilkanInfoPembayaran()
+                        binding.autoJam.isEnabled = false
+                        binding.btnAjukan.isEnabled = false
                     } else {
+                        // 🔥 INI YANG HILANG SEBELUMNYA
+                        binding.btnBayar.visibility = View.GONE
+                        binding.autoJam.isEnabled = true
                         binding.btnAjukan.isEnabled = true
-                        renderJamButtons()
                     }
 
-                } else {
-                    Toast.makeText(this@FormPengajuanActivity, "Gagal mengambil status pendaftaran", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@FormPengajuanActivity, "Error koneksi", Toast.LENGTH_SHORT).show()

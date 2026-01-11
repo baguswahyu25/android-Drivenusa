@@ -54,11 +54,6 @@
             lifecycleScope.launch {
 
                 val response = api.getPendaftaranAktif()
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        renderProgress(it)
-                    }
-                }
             }
 
             lifecycleScope.launch {
@@ -100,18 +95,6 @@
             intent.putExtra("pertemuan_ke", posisi + 1)
             intent.putExtra("pertemuan_nama", nama)
             startActivityForResult(intent, REQ_PENGAJUAN)
-        }
-
-        private fun renderProgress(pendaftaran: PendaftaranAktifResponse) {
-            val total = pendaftaran.totalPertemuan ?: 0
-            val sisa = pendaftaran.sisaPertemuan ?: 0
-            val selesai = total - sisa
-
-            binding.progressPertemuan.max = total
-            binding.progressPertemuan.progress = selesai
-
-            binding.txtProgress.text =
-                "$selesai / $total Pertemuan"
         }
 
 

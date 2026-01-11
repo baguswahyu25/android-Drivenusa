@@ -22,7 +22,6 @@ class RiwayatAdapter(
         val tvJudul: TextView = itemView.findViewById(R.id.tvJudul)
         val tvPaket: TextView = itemView.findViewById(R.id.tvPaket)
         val tvHarga: TextView = itemView.findViewById(R.id.tvHarga)
-        val tvTanggal: TextView = itemView.findViewById(R.id.tvTanggal)
         val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
     }
 
@@ -35,48 +34,47 @@ class RiwayatAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val data = list[position]
 
+        // Image
         Glide.with(holder.itemView.context)
             .load(data.image)
             .placeholder(R.drawable.img_placeholder)
             .into(holder.imgMobil)
 
-        holder.tvJudul.text = data.judul
+        // Text
+        holder.tvJudul.text = data.mobil
         holder.tvPaket.text = data.paket
-        holder.tvHarga.text = "Rp ${NumberFormat.getInstance().format(data.harga)}"
-        holder.tvTanggal.text = data.tanggal.replace(" ", "\n")
-        holder.tvStatus.text = data.status.uppercase()
+        holder.tvHarga.text =
+            "Rp ${NumberFormat.getInstance().format(data.harga)}"
 
-        when (data.status.uppercase()) {
-            "PAID", "SETTLEMENT", "CAPTURE" ->
+        // STATUS
+        val status = data.status.uppercase()
+        holder.tvStatus.text = status
+
+        when (status) {
+            "PAID", "SETTLEMENT", "CAPTURE" -> {
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_paid)
+                holder.itemView.alpha = 1f
+            }
 
-            "PENDING" ->
+            "PENDING", "DP", "CICILAN" -> {
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+                holder.itemView.alpha = 1f
+            }
 
-            else ->
+            else -> { // FAILED / EXPIRE / CANCEL
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_failed)
-        }
-
-        holder.itemView.setOnClickListener {
-            when (data.status.uppercase()) {
-                "PENDING" -> {
-                    onPendingClick(data)
-                }
-                "PAID", "SETTLEMENT", "CAPTURE" -> {
-                    onDetailClick(data)
-                }
-                else -> {
-                    // ❌ EXPIRE / FAILED / CANCEL → DIAM
-                }
+                holder.itemView.alpha = 0.5f
             }
         }
-        if (data.status.uppercase() in listOf("FAILED","EXPIRE","CANCEL")) {
-            holder.itemView.alpha = 0.5f
-        }
 
+        // CLICK BEHAVIOR
+        holder.itemView.setOnClickListener {
+            when (status) {
+                "PAID", "SETTLEMENT", "CAPTURE" -> onDetailClick(data)
+                "PENDING", "DP", "CICILAN" -> onPendingClick(data)
+            }
+        }
     }
 
     override fun getItemCount() = list.size
 }
-
-

@@ -2,55 +2,63 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="32dp"
+    android:paddingBottom="24dp"
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="24dp">
 
-        <!-- TITLE -->
-        <TextView
-            android:id="@+id/txtJudul"
-            android:text="Pengajuan Jadwal"
-            android:textStyle="bold"
-            android:textSize="22sp"
-            android:layout_marginBottom="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_back" />
 
-        <!-- PERTEMUAN -->
-        <TextView
-            android:text="Pertemuan"
-            android:textSize="14sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/txtJudul"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Pengajuan Jadwal"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#111827"/>
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/txtPertemuan"
             android:text="Pertemuan 1"
             android:textStyle="bold"
             android:textSize="17sp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="40dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <!-- PILIH TANGGAL -->
-        <TextView
-            android:text="Pilih Tanggal"
-            android:textSize="14sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
 
         <TextView
             android:id="@+id/btnTanggal"
-            android:padding="14dp"
-            android:text="Pilih tanggal"
-            android:textSize="16sp"
-            android:background="@drawable/bg_field"
-            android:layout_marginBottom="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="48dp"
+            android:background="@drawable/bg_field_jam"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:text="pilih tanggal"
+            android:textSize="15sp"
+            android:textColor="#9CA3AF"
+            android:layout_marginBottom="16dp"/>
+
         <!-- SHIMMER JAM -->
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmerJam"
@@ -72,29 +80,29 @@
             </LinearLayout>
         </com.facebook.shimmer.ShimmerFrameLayout>
         <!-- PILIH JAM -->
-        <TextView
-            android:text="Pilih Jam"
-            android:textSize="14sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
 
-        <LinearLayout
-            android:id="@+id/layoutJam"
-            android:orientation="vertical"
-            android:layout_marginTop="10dp"
+        <AutoCompleteTextView
+            android:id="@+id/autoJam"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="48dp"
+            android:background="@drawable/bg_field_jam"
+            android:hint="pilih jam"
+            android:paddingHorizontal="16dp"
+            android:textSize="15sp"
+            android:textColor="#111827"
+            android:focusable="false"
+            android:clickable="true"
+            android:inputType="none"
+            android:layout_marginBottom="32dp"/>
 
-            <!-- Jam akan ditambahkan dinamis lewat Kotlin -->
 
-        </LinearLayout>
 
         <!-- TOMBOL KIRIM -->
         <Button
             android:id="@+id/btnAjukan"
             android:text="Ajukan Jadwal"
             android:layout_marginTop="30dp"
-            android:backgroundTint="#2979FF"
+            android:backgroundTint="#0B5694"
             android:textColor="@android:color/white"
             android:padding="14dp"
             android:layout_width="match_parent"

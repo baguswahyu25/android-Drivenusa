@@ -4,24 +4,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="10dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#F6F7FB">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        >
+        android:paddingStart="16dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp">
 
+        <!-- PERTEMUAN -->
         <TextView
             android:id="@+id/txtPertemuan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pertemuan 1"
-            android:textSize="16sp"
+            android:text="pertemuan 1"
+            android:textSize="14sp"
             android:textStyle="bold"
+            android:textColor="#1F2937"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
@@ -29,39 +32,54 @@
         <!-- STATUS PROSES -->
         <TextView
             android:id="@+id/txtProses"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Diproses..."
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:text="diproses"
             android:textSize="14sp"
-            android:padding="6dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:textColor="@android:color/white"
             android:background="@drawable/bg_proses"
-            android:textColor="@android:color/black"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <Button
-            android:id="@+id/btnAjukan"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:text="Ajukan"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:textSize="14sp"
-            android:backgroundTint="#2979FF"
-            android:textColor="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
 
+        <!-- BUTTON AJUKAN -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAjukan"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:text="ajukan"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#2979FF"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+
+        app:cornerRadius="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+        <!-- ICON SELESAI -->
         <ImageView
             android:id="@+id/icSelesai"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:src="@drawable/ic_check"
             android:visibility="gone"
-            app:tint="#4CAF50"
+            app:tint="#22C55E"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />

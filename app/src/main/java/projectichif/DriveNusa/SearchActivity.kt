@@ -7,13 +7,15 @@ import android.text.TextWatcher
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import projectichif.DriveNusa.api.PaketKursus
 import projectichif.DriveNusa.api.toPaketKursus
 import projectichif.DriveNusa.databinding.ActivitySearchBinding
 
-class SearchActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity(), OnPaketClickListener {
+
 
     private lateinit var binding: ActivitySearchBinding
     private lateinit var adapter: PaketKursusAdapter
@@ -28,15 +30,13 @@ class SearchActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        adapter = PaketKursusAdapter(emptyList(), object : OnPaketClickListener {
-            override fun onPilihClicked(paket: PaketKursus) {
-                val intent = Intent(this@SearchActivity, SyaratActivity::class.java)
-                intent.putExtra(SyaratActivity.EXTRA_PAKET_NAMA, paket.nama)
-                startActivity(intent)
-            }
-        })
+        adapter = PaketKursusAdapter(
+            paketList = emptyList(),
+            isHome = false,
+            listener = this// 🔥 PENTING
+        )
 
-        binding.rvSearch.layoutManager = LinearLayoutManager(this)
+        binding.rvSearch.layoutManager = GridLayoutManager(this, 2)
         binding.rvSearch.adapter = adapter
 
         // Load paket kursus dari API
@@ -58,6 +58,11 @@ class SearchActivity : AppCompatActivity() {
             filter(text)
             true
         }
+    }
+    override fun onPilihClicked(paket: PaketKursus) {
+        val intent = Intent(this, SyaratActivity::class.java)
+        intent.putExtra(SyaratActivity.EXTRA_PAKET_NAMA, paket.nama)
+        startActivity(intent)
     }
 
     private fun loadPaketKursus() {
